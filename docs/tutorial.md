@@ -13,11 +13,9 @@
 1. Download the headers in [`/graphw`](https://github.com/claby2/graphw/tree/master/graphw).
 2. Either put the header files in a central location (with a specified path) or directly in your project tree.
 
-## Creating and displaying a graph
+## Create a graph
 
 graphw features multiple graph types. We will be creating and displaying an Arc Diagram in this tutorial.
-
-## Create a graph
 
 Create an empty Arc Diagram without any nodes or edges.
 
@@ -43,7 +41,7 @@ g.add_node("0");
 g.add_node("1");
 ```
 
-A node can also be successfully added without passing a label as an argument. If this is the case, the method would automatically assign a label that is equal to the id as a string.
+Additionally, a node can be added without passing a label as an argument. If this is the case, the method would automatically assign a label. This new label would be equal to the node id as a `std::string`.
 
 At this point, the graph `g` contains two nodes.
 
@@ -60,7 +58,7 @@ g.add_edge("0", "1");
 The same function, `draw()` can be used to draw and display any graph type. Note that this requires [SDL2](http://libsdl.org/download-2.0.php).
 
 ```cpp
-draw(g);
+graphw::draw(g);
 ```
 
 [Home](./readme.md)
