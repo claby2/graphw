@@ -177,6 +177,11 @@ namespace graphw {
                 edges = 0;
             }
 
+            // Return whether graph is directed
+            inline bool directed() {
+                return directed_;
+            }
+
             // Set the graph to be directed or not
             inline void set_directed(bool new_directed_) {
                 directed_ = new_directed_;
@@ -190,11 +195,6 @@ namespace graphw {
             // Return number of edges
             inline int number_of_edges() {
                 return edges;
-            }
-
-            // Return whether graph is directed
-            inline bool directed() {
-                return directed_;
             }
 
         protected:
