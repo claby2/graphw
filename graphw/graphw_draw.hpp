@@ -126,7 +126,8 @@ namespace graphw {
     }
 
     // Render an Arc Diagram graph
-    void render(ArcDiagram &ad) {
+    std::vector<Position> render(ArcDiagram &ad) {
+        std::vector<Position> node_positions;
         // Initialize checkpoint positions and measurements
         int center_x = (int)(window_width / 2);
         int center_y = (int)(window_height / 2);
@@ -135,9 +136,12 @@ namespace graphw {
         // Draw line and node circles
         for(int i = 0; i <= ad.number_of_nodes(); i++) {
             if(i < ad.number_of_nodes()) {
+                int node_x = (node_radius * 2) + (i * (4 * node_radius));
+                int node_y = center_y;
+                node_positions.push_back({node_x, node_y});
                 draw_circle(
-                    (node_radius * 2) + (i * (4 * node_radius)),
-                    center_y,
+                    node_x,
+                    node_y,
                     node_radius
                 );
             }
@@ -202,10 +206,11 @@ namespace graphw {
                 current_edge++;
             }
         }
+        return node_positions;
     }
 
     // Render a Circular Layout graph
-    void render(CircularLayout &cl) {
+    std::vector<Position> render(CircularLayout &cl) {
         const int circle_padding = 5;
         const int node_radius = cl.node_radius();
         // Initialize checkpoint positions and measurements
@@ -242,10 +247,12 @@ namespace graphw {
                 );
             }
         }
+        return node_positions;
     }
 
     // Render a Spiral Layout graph
-    void render(SpiralLayout &sl) {
+    std::vector<Position> render(SpiralLayout &sl) {
+        std::vector<Position> node_positions;
         const int node_radius = sl.node_radius();
         const float resolution = sl.resolution();
         const float chord = 1;
@@ -258,7 +265,7 @@ namespace graphw {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         // Get initial node positions
         // Store node_positions as pair of floats
-        std::vector<std::pair<float, float> > node_positions;
+        std::vector<std::pair<float, float> > node_positions_float;
         if(sl.equidistant()) {
             // Calculate node positions with equal distances
             float theta = resolution;
@@ -268,7 +275,7 @@ namespace graphw {
                 float node_x = (cos(theta) * radius);
                 float node_y = (sin(theta) * radius);
                 if(i > 0) {
-                    node_positions.push_back(std::make_pair(
+                    node_positions_float.push_back(std::make_pair(
                         node_x,
                         node_y
                     ));
@@ -282,7 +289,7 @@ namespace graphw {
             while(dist * sqrt((cos(angle) * cos(angle)) + (sin(angle) * sin(angle))) < radius) {
                 float node_x = (cos(angle) * dist);
                 float node_y = (sin(angle) * dist);
-                node_positions.push_back(std::make_pair(
+                node_positions_float.push_back(std::make_pair(
                     node_x,
                     node_y
                 ));
@@ -292,26 +299,27 @@ namespace graphw {
         }
         // Get node max coordinate (x or y dependent on window dimensions)
         float max = 0;
-        for(int i = 0; i < node_positions.size(); i++) {
+        for(int i = 0; i < node_positions_float.size(); i++) {
             float coordinate;
             if(window_width == min_dimension) {
                 // Window width is smaller than window height
                 // Record absolute x coordinate
-                coordinate = abs(node_positions[i].first);
+                coordinate = abs(node_positions_float[i].first);
             } else {
                 // Window height is smaller than window width
                 // Record absolute y coordinate
-                coordinate = abs(node_positions[i].second);
+                coordinate = abs(node_positions_float[i].second);
             }
             max = std::max(coordinate, max);
         }
         // Adjust node positions with calculated factor
         float factor = ((float)(min_dimension - padding) / max) / 2;
-        for(int i = 0; i < node_positions.size(); i++) {
-            node_positions[i].first = (node_positions[i].first * factor) + center_x;
-            node_positions[i].second = (node_positions[i].second * factor) + center_y;
-            int node_x = node_positions[i].first;
-            int node_y = node_positions[i].second;
+        for(int i = 0; i < node_positions_float.size(); i++) {
+            node_positions_float[i].first = (node_positions_float[i].first * factor) + center_x;
+            node_positions_float[i].second = (node_positions_float[i].second * factor) + center_y;
+            int node_x = node_positions_float[i].first;
+            int node_y = node_positions_float[i].second;
+            node_positions.push_back({node_x, node_y});
             draw_circle(
                 node_x, 
                 node_y, 
@@ -326,17 +334,18 @@ namespace graphw {
                 int node2_id = (int)(sl.graph[i][j].id);
                 SDL_RenderDrawLine(
                     renderer,
-                    node_positions[node1_id].first,
-                    node_positions[node1_id].second,
-                    node_positions[node2_id].first,
-                    node_positions[node2_id].second
+                    node_positions_float[node1_id].first,
+                    node_positions_float[node1_id].second,
+                    node_positions_float[node2_id].first,
+                    node_positions_float[node2_id].second
                 );
             }
         }
+        return node_positions;
     }
 
     // Render Random Layout graph
-    void render_random(RandomLayout &rl, std::vector<std::pair<float, float> > &random_positions, bool first_render) {
+    std::vector<Position> render_random(RandomLayout &rl, std::vector<std::pair<float, float> > &random_positions, bool first_render) {
         const int node_radius = rl.node_radius();
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         // Draw nodes
@@ -373,6 +382,7 @@ namespace graphw {
             }
         }
         first_render = false;
+        return node_positions;
     }
 
     // Draw a given graph

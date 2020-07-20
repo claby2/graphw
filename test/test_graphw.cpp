@@ -958,3 +958,131 @@ TEST_CASE("testing graph encapsulation") {
         CHECK(spiral_layout.equidistant() == true);
     }
 }
+
+TEST_CASE("testing graph rendering") {
+    // Test graph rendering by verifying node positioning
+    SECTION("arc diagram") {
+        graphw::ArcDiagram arc_diagram;
+        arc_diagram.add_empty(10);
+        std::vector<graphw::Position> expected_output = {
+            {32, 240},
+            {96, 240},
+            {160, 240},
+            {224, 240},
+            {288, 240},
+            {352, 240},
+            {416, 240},
+            {480, 240},
+            {544, 240},
+            {608, 240}
+        };
+        std::vector<graphw::Position> output = graphw::render(arc_diagram);
+        CHECK(output.size() == expected_output.size());
+        for(int i = 0; i < expected_output.size(); i++) {
+            CHECK(output[i].x == expected_output[i].x);
+            CHECK(output[i].y == expected_output[i].y);
+        }
+    }
+    SECTION("circular layout") {
+        graphw::CircularLayout circular_layout;
+        circular_layout.add_empty(10);
+        std::vector<graphw::Position> expected_output = {
+            {535, 240},
+            {493, 366},
+            {386, 444},
+            {253, 444},
+            {146, 366},
+            {105, 239},
+            {146, 113},
+            {253, 35},
+            {386, 35},
+            {493, 113}
+        };
+        std::vector<graphw::Position> output = graphw::render(circular_layout);
+        CHECK(output.size() == expected_output.size());
+        for(int i = 0; i < expected_output.size(); i++) {
+            CHECK(output[i].x == expected_output[i].x);
+            CHECK(output[i].y == expected_output[i].y);
+        }
+    }
+    SECTION("random layout") {
+        // Set random seed to fixed 123
+        srand(123);
+        graphw::RandomLayout random_layout;
+        random_layout.add_empty(10);
+        std::vector<graphw::Position> expected_output = {
+            {380, 26},
+            {267, 343},
+            {81, 474},
+            {638, 451},
+            {551, 157},
+            {34, 306},
+            {93, 82},
+            {371, 447},
+            {617, 451},
+            {486, 463}
+        };
+        std::vector<std::pair<float, float> > random_positions;
+        // Simulate first render random
+        std::vector<graphw::Position> output = graphw::render_random(
+            random_layout, 
+            random_positions, 
+            true
+        );
+        CHECK(output.size() == expected_output.size());
+        for(int i = 0; i < expected_output.size(); i++) {
+            CHECK(output[i].x == expected_output[i].x);
+            CHECK(output[i].y == expected_output[i].y);
+        }
+    }
+    SECTION("spiral layout") {
+        SECTION("not equidistant") {
+            graphw::SpiralLayout spiral_layout;
+            // Set equidistant to false
+            spiral_layout.set_equidistant(false);
+            spiral_layout.add_empty(10);
+            std::vector<graphw::Position> expected_output = {
+                {320, 240},
+                {359, 254},
+                {384, 294},
+                {383, 350},
+                {348, 407},
+                {282, 448},
+                {191, 460},
+                {90, 429},
+                {0, 353},
+                {-62, 236}
+            };
+            std::vector<graphw::Position> output = graphw::render(spiral_layout);
+            CHECK(output.size() == expected_output.size());
+            for(int i = 0; i < expected_output.size(); i++) {
+                CHECK(output[i].x == expected_output[i].x);
+                CHECK(output[i].y == expected_output[i].y);
+            }
+        }
+        SECTION("equidistant") {
+            graphw::SpiralLayout spiral_layout;
+            // Set equidistant to true
+            spiral_layout.set_equidistant(true);
+            spiral_layout.add_empty(10);
+            std::vector<graphw::Position> expected_output = {
+                {493, 259},
+                {488, 315},
+                {465, 367},
+                {427, 410},
+                {379, 441},
+                {325, 458},
+                {268, 460},
+                {212, 447},
+                {161, 421},
+                {118, 383}
+            };
+            std::vector<graphw::Position> output = graphw::render(spiral_layout);
+            CHECK(output.size() == expected_output.size());
+            for(int i = 0; i < expected_output.size(); i++) {
+                CHECK(output[i].x == expected_output[i].x);
+                CHECK(output[i].y == expected_output[i].y);
+            }
+        }
+    }
+}
