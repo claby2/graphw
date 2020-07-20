@@ -22,8 +22,8 @@ Documentation can be found in [`docs/`](./docs/readme.md).
 Here is a simple example which constructs and models a graph in a circular layout:
 
 ```cpp
-#include "<graphw/graphw.hpp>"
-#include "<graphw/graphw_draw.hpp>"
+#include <graphw/graphw.hpp>
+#include <graphw/graphw_draw.hpp>
 
 int main() {
     graphw::CircularLayout g;
