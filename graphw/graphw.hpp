@@ -634,7 +634,7 @@ namespace graphw {
                 return non_neighbors;
             }
 
-            // Return a list of labels representing te common neighbor given two node labels
+            // Return a list of labels representing the common neighbor(s) given two node labels
             std::list<std::string> get_common_neighbors(std::string label1, std::string label2) {
                 if(labels.find(label1) == labels.end() || labels.find(label2) == labels.end()) {
                     // At least one of the labels do not exist

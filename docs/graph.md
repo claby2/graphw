@@ -14,13 +14,9 @@ If the label already exists, no node will be added.
 
 + label (`std::string`, optional) - A string representing the label of the node to be added.
 
-### Returns
+***Returns***
 
 Node - The node that was added. If no node was added (due to duplicate labels), the node's id would be equal to 0 and the label would be an empty `std::string`.
-
-### Return type
-
-Node
 
 ## Graph.add_edge(node1, node2)
 
@@ -32,37 +28,7 @@ Both parameters can either be given as a string - representing the label of the 
 
 ***Parameters***
 
-+ node1, node2 (nodes) - The nodes can be either both a `std::string` or Node`
-
-## Graph.add_path(list)
-
-Add a path to the graph.
-
-***Parameters***
-
-+ list (`std::list`) - A list of nodes which strictly holds either type `std::string` or Node. A path will be constructed from the nodes in the order they are given and added to the graph if they do not already exist.
-
-***Examples***
-
-```cpp
-graphw::ArcDiagram g;
-g.add_path({"0", "1", "2"});
-```
-
-## Graph.add_cycle(list)
-
-Add a cycle to the graph.
-
-***Parameters***
-
-+ list (`std::list`) - A list of nodes which strictly holds either type `std::string` or Node. A cycle will be constructed from the nodes in the order they are given and added to the graph if they do not already exist.
-
-***Examples***
-
-```cpp
-graphw::ArcDiagram g;
-g.add_cycle({"0", "1", "2"});
-```
++ node1, node2 (nodes) - The nodes can be either both a `std::string` or Node.
 
 ## Graph.clear()
 
@@ -73,6 +39,10 @@ Remove all nodes and edges from the graph
 Return whether the graph is directed.
 
 This is false by default.
+
+***Returns***
+
+bool - Returns true if the graph is directed.
 
 ## Graph.set_directed(new_directed)
 
@@ -88,8 +58,111 @@ This is false by default.
 
 Return number of nodes.
 
+***Returns***
+
+int - The number of nodes registered in the graph.
+
 ## Graph.number_of_edges()
 
 Return number of edges.
+
+***Returns***
+
+int - The number of edges registered in the graph.
+
+## Graph.get_adjacency_list(delimiter)
+
+Return adjacency list as a string with the given delimiter.
+
+The adjacency list represents the graph's labels and their relations with each other through edges.
+Each row in the adjacency list represents a node and its neighbors.
+Each row begins with a node label with the rest of the elements in the row representing the neighboring node labels.
+Because of this, the number of rows in the adjacency list should be equal to the number of nodes in the graph.
+The adjacency list is returned as one continuous `std::string` with a new line after each row.
+
+***Parameters***
+
++ delimiter (`std::string`, optional) - A string representing the separation between labels in a row. The default value is `" "`.
+
+***Returns***
+
+`std::string` - The adjacency list of the graph
+
+## Graph.density()
+
+Return the density of the graph.
+
+The density represents the number of edges compared to the maximum number of possible edges.
+The calculation to get the density of a graph with m edges and n nodes is dependent on the directed state of the graph:
+
+If the graph is directed, the density is calculated with: m / (n * (n - 1)).
+
+If the graph is undirected, the density is calculated with: 2m / (n * (n - 1)).
+
+***Returns***
+
+float - The density of the graph.
+
+## Graph.degree(label)
+
+Return the degree of a node with a given label.
+
+The degree of a node is equal to the number of edges that directly neighbor.
+
+***Parameters***
+
++ label (`std::string`) - The label of the node.
+
+***Returns***
+
+int - The degree of the given node.
+
+## Graph.average_degree()
+
+Return the average degree of the graph.
+
+This method returns the average degree of the graph which is calculated by adding up the degrees of all nodes and dividing it by the number of nodes in the graph.
+
+***Returns***
+
+int - The average degree of the graph.
+
+## Graph.get_neighbors()
+
+Return a list of labels representing the neighbor of a given node label.
+
+***Parameters***
+
++ label (`std::string`) - The label of the node.
+
+***Returns***
+
+`std::list` - A list where each element represents a label of a neighboring node.
+
+## Graph.get_non_neighbors()
+
+Return a list of labels representing the non-neighbors of a given node label.
+
+Non-neighbors are any nodes that are not neighbors to a given node (with the exception of the node itself).
+
+***Parameters***
+
++ label (`std::string`) - The label of the node.
+
+***Returns***
+
+`std::list` - A list where each element represents a label of a non-neighbor.
+
+## Graph.get_common_neighbors(label1, label2)
+
+Return a list of labels representing the common neighbor(s) given two node labels.
+
+***Parameters***
+
++ label1, label2 (`std::string`) - Labels in the graph
+
+***Returns***
+
+`std::list` - A list where each element represents a common neighbor.
 
 [Home](./readme.md)

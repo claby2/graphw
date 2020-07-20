@@ -29,6 +29,36 @@ g.add_binomial_tree(3);
 graphw::draw(g);
 ```
 
+## Graph.add_path(list)
+
+Add a path to the graph.
+
+***Parameters***
+
++ list (`std::list`) - A list of nodes which strictly holds either type `std::string` or Node. A path will be constructed from the nodes in the order they are given and added to the graph if they do not already exist.
+
+***Examples***
+
+```cpp
+graphw::ArcDiagram g;
+g.add_path({"0", "1", "2"});
+```
+
+## Graph.add_cycle(list)
+
+Add a cycle to the graph.
+
+***Parameters***
+
++ list (`std::list`) - A list of nodes which strictly holds either type `std::string` or Node. A cycle will be constructed from the nodes in the order they are given and added to the graph if they do not already exist.
+
+***Examples***
+
+```cpp
+graphw::ArcDiagram g;
+g.add_cycle({"0", "1", "2"});
+```
+
 ## Graph.add_balanced_tree(children, height)
 
 Add a balanced m-ary tree with a given branching factor and height.
