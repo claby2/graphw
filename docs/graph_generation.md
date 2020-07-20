@@ -18,8 +18,7 @@ int main() {
 }
 ```
 
-These graph generation methods can also be called multiple times with varying results.
-For example, the following examples adds a complete multipartite graph and a binomial tree:
+The following example adds a complete multipartite graph and a binomial tree to the same graph:
 
 ```cpp
 graphw::CircularLayout g;
