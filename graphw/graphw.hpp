@@ -68,18 +68,36 @@ namespace graphw {
                     // Label2 does not exist, add node with label2
                     add_node(label2);
                 }
-                // Define new nodes based one label1 and label2
-                Node node1 = {
-                    identities[label1],
-                    label1
-                };
-                Node node2 = {
-                    identities[label2],
-                    label2
-                };
-                graph[node1.id].push_back(node2);
-                if(!directed_) {
-                    graph[node2.id].push_back(node1);
+                // Check if edge already exists
+                bool exist = false;
+                std::list<std::string> neighbors = get_neighbors(label1);
+                for(auto &neighbor: neighbors) {
+                    if(neighbor == label2) {
+                        exist = true;
+                        break;
+                    }
+                }
+                neighbors = get_neighbors(label2);
+                for(auto &neighbor: neighbors) {
+                    if(neighbor == label2) {
+                        exist = true;
+                        break;
+                    }
+                }
+                if(!exist) {
+                    // Define new nodes based one label1 and label2
+                    Node node1 = {
+                        identities[label1],
+                        label1
+                    };
+                    Node node2 = {
+                        identities[label2],
+                        label2
+                    };
+                    graph[node1.id].push_back(node2);
+                    if(!directed_) {
+                        graph[node2.id].push_back(node1);
+                    }
                 }
             }
 
@@ -184,19 +202,26 @@ namespace graphw {
                 int initial_size = graph.size();
                 // Calculate number of nodes in tree
                 int node_amount;
-                if(children == 1) {
+                if(height == 0) {
+                    add_node();
+                } else if(children == 1) {
                     node_amount = height + 1;
+                    for(int i = initial_size; i < (initial_size + node_amount); i++) {
+                        if(i > initial_size) {
+                            add_edge(std::to_string(i - 1), std::to_string(i));
+                        }
+                    }
                 } else {
                     // Formula for the sum of a geometric sequence
                     node_amount = (int)((1 - pow(children, height)) / (1 - children));
-                }
-                int current_node = initial_size;
-                for(int i = initial_size; i < (initial_size + node_amount); i++) {
-                    for(int j = 1; j <= children; j++) {
-                        // Add edge
-                        add_edge(std::to_string(i), std::to_string(current_node + j));
+                    int current_node = initial_size;
+                    for(int i = initial_size; i < (initial_size + node_amount); i++) {
+                        for(int j = 1; j <= children; j++) {
+                            // Add edge
+                            add_edge(std::to_string(i), std::to_string(current_node + j));
+                        }
+                        current_node += children;
                     }
-                    current_node += children;
                 }
             }
 
@@ -343,8 +368,10 @@ namespace graphw {
                 } else if(n > 0) {
                     int initial_size = graph.size();
                     add_ladder(n);
-                    add_edge(std::to_string(initial_size), std::to_string(initial_size + (n - 1)));
-                    add_edge(std::to_string(initial_size + n), std::to_string(initial_size + ((2 * n) - 1)));
+                    if(n > 2) {
+                        add_edge(std::to_string(initial_size), std::to_string(initial_size + (n - 1)));
+                        add_edge(std::to_string(initial_size + n), std::to_string(initial_size + ((2 * n) - 1)));
+                    }
                 }
             }
 
@@ -362,37 +389,6 @@ namespace graphw {
                     for(int i = initial_size; i < (initial_size + n); i++) {
                         for(auto const& offset : offsets) {
                             add_edge(std::to_string(i), std::to_string((i + abs(offset)) % n));
-                        }
-                    }
-                }
-            }
-
-            // Add a Dorogovstev-Golstev-Mendes graph
-            void add_dorogovstev_golstev_mendes(int n) {
-                int initial_size = graph.size();
-                // Edge represents two node ids
-                struct Edge {
-                    int id1;
-                    int id2;
-                };
-                // edges_vector holds the edges in the current binomial tree
-                std::vector<Edge> edges_vector;
-                add_edge(std::to_string(initial_size), std::to_string(initial_size + 1));
-                edges_vector.push_back({initial_size, initial_size + 1});
-                if(n > 0) {
-                    int current_node = initial_size + 2;
-                    for(int i = (initial_size + 1); i <= (initial_size + n); i++) {
-                        int initial_edges_size = edges_vector.size();
-                        for(int j = initial_size; j < (initial_size + initial_edges_size); j++) {
-                            int node1 = edges_vector[j].id1;
-                            int node2 = edges_vector[j].id2;
-                            add_edge(std::to_string(current_node), std::to_string(node1));
-                            add_edge(std::to_string(current_node), std::to_string(node2));
-                            Edge edge1 = {current_node, node1};
-                            Edge edge2 = {current_node, node2};
-                            edges_vector.push_back(edge1);
-                            edges_vector.push_back(edge2);
-                            current_node += 1;
                         }
                     }
                 }
@@ -560,6 +556,106 @@ namespace graphw {
                     line.clear();
                 }
                 return adjacency_list;
+            }
+
+            // Return the density of the graph
+            float density() {
+                float size = (float)(graph.size());
+                if(directed_) {
+                    return (float)(edges / (size * (size - 1)));
+                }
+                return (float)((2 * edges) / (size * (size - 1)));
+            }
+
+            // Return the degree of a node with given label
+            int degree(std::string label) {
+                if(labels.find(label) == labels.end()) {
+                    // Label does not exist
+                    throw GraphwError("Given label does not exist");
+                }
+                int node_id = identities[label];
+                return graph[node_id].size();
+            }
+
+            // Return the average degree of the graph
+            float average_degree() {
+                int total = 0;
+                for(int i = 0; i < graph.size(); i++) {
+                    total += degree(labels_vector[i]);
+                }
+                return ((float)total / (float)graph.size());
+            }
+
+            // Return a list of labels representing the neighbor of a given node label
+            std::list<std::string> get_neighbors(std::string label) {
+                if(labels.find(label) == labels.end()) {
+                    // Label does not exist
+                    throw GraphwError("Given label does not exist");
+                }
+                int node_id = identities[label];
+                std::list<std::string> neighbors;
+                for(int i = 0; i < graph[node_id].size(); i++) {
+                    neighbors.push_back(graph[node_id][i].label);
+                }
+                return neighbors;
+            }
+
+            // Return a list of labels representing the non-neighbors of a given node label
+            std::list<std::string> get_non_neighbors(std::string label) {
+                if(labels.find(label) == labels.end()) {
+                    // Label does not exist
+                    throw GraphwError("Given label does not exist");
+                }
+                // Neighbors of the given node label
+                std::list<std::string> neighbors = get_neighbors(label);
+                // List which will hold all non neighbors
+                std::list<std::string> non_neighbors;
+                for(int i = 0; i < graph.size(); i++) {
+                    bool is_neighbor = false;
+                    std::string current_label = labels_vector[i];
+                    if(current_label != label) {
+                        // Current label being compared is not equal to given label
+                        for(auto &neighbor : neighbors) {
+                            if(current_label == neighbor) {
+                                // Given label is a neighbor
+                                is_neighbor = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // Current label being compared is equal to given label
+                        // Mark it as a neighbor to avoid pushing it into non neighbors list
+                        is_neighbor = true;
+                    }
+                    if(!is_neighbor) {
+                        non_neighbors.push_back(current_label);
+                    }
+                }
+                return non_neighbors;
+            }
+
+            // Return a list of labels representing te common neighbor given two node labels
+            std::list<std::string> get_common_neighbors(std::string label1, std::string label2) {
+                if(labels.find(label1) == labels.end() || labels.find(label2) == labels.end()) {
+                    // At least one of the labels do not exist
+                    throw GraphwError("Given label does not exist");
+                }
+                std::list<std::string> common_neighbors;
+                // List of label1's neighbors
+                std::list<std::string> neighbors1 = get_neighbors(label1);
+                // List of label2's neighbors
+                std::list<std::string> neighbors2 = get_neighbors(label2);
+                // Compare lists
+                for(auto &i : neighbors1) {
+                    for(auto &j : neighbors2) {
+                        if(i == j) {
+                            // Labels are equivalent
+                            common_neighbors.push_back(i);
+                            break;
+                        }
+                    }
+                }
+                return common_neighbors;
             }
 
             // Remove all nodes and edges from the graph

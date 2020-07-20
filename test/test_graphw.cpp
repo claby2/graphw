@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <string>
 #include <list>
+#include <limits>
 
 #include <catch2/catch.hpp>
 
@@ -163,8 +164,7 @@ TEST_CASE("testing graph generation") {
             "0 1 \n"
             "1 0 2 \n"
             "2 1 3 \n"
-            "3 2 4 \n"
-            "4 3 \n",
+            "3 2 \n",
 
             "0 1 2 \n"
             "1 0 3 4 \n"
@@ -179,7 +179,7 @@ TEST_CASE("testing graph generation") {
             "2 0 \n"
             "3 0 \n",
 
-            "",
+            "0 \n",
 
             ""
         };
@@ -376,7 +376,8 @@ TEST_CASE("testing graph generation") {
             "11 0 1 2 3 4 5 6 7 8 9 10 \n"
             "12 0 1 2 3 4 5 6 7 8 9 10 \n"
             "13 0 1 2 3 4 5 6 7 8 9 10 \n"
-            "14 0 1 2 3 4 5 6 7 8 9 10 \n",  
+            "14 0 1 2 3 4 5 6 7 8 9 10 \n",
+
             "0 4 5 6 7 8 9 10 11 12 13 14 \n"
             "1 4 5 6 7 8 9 10 11 12 13 14 \n"
             "2 4 5 6 7 8 9 10 11 12 13 14 \n"
@@ -415,13 +416,13 @@ TEST_CASE("testing graph generation") {
 
             "",
 
-            "0 1 0 0 \n"
-            "1 0 1 1 \n",
+            "0 1 \n"
+            "1 0 \n",
 
-            "0 2 1 1 \n"
-            "1 0 3 0 \n"
-            "2 0 3 3 \n"
-            "3 1 2 2 \n",
+            "0 2 1 \n"
+            "1 0 3 \n"
+            "2 0 3 \n"
+            "3 1 2 \n",
 
             "0 3 1 2 \n"
             "1 0 4 2 \n"
@@ -478,10 +479,10 @@ TEST_CASE("testing graph generation") {
             "3 1 2 4 0 \n"
             "4 2 3 0 1 \n",
 
-            "0 3 2 1 1 2 3 \n"
-            "1 0 0 3 2 2 3 \n"
-            "2 0 1 1 0 3 3 \n"
-            "3 0 1 2 2 1 0 \n"
+            "0 3 2 1 \n"
+            "1 0 3 2 \n"
+            "2 0 1 3 \n"
+            "3 0 1 2 \n"
         };
         for(int i = 0; i < 5; i++) {
             if(i == 0) {
@@ -496,47 +497,6 @@ TEST_CASE("testing graph generation") {
             }
             graph.clear();
         }
-    }
-    SECTION("add dorogovstev golstev mendes") {
-        graphw::Graph graph;
-        auto n = GENERATE(-1, 0, 1, 2, 3);
-        std::vector<std::string> expected_output = {
-            "0 1 \n"
-            "1 0 \n",
-
-            "0 1 \n"
-            "1 0 \n",
-
-            "0 1 2 \n"
-            "1 0 2 \n"
-            "2 0 1 \n",
-
-            "0 1 2 3 4 \n"
-            "1 0 2 3 5 \n"
-            "2 0 1 4 5 \n"
-            "3 0 1 \n"
-            "4 2 0 \n"
-            "5 2 1 \n",
-
-            "0 1 2 3 4 6 7 9 12 \n"
-            "1 0 2 3 5 6 8 10 14 \n"
-            "2 0 1 4 5 7 8 11 13 \n"
-            "3 0 1 9 10 \n"
-            "4 2 0 11 12 \n"
-            "5 2 1 13 14 \n"
-            "6 0 1 \n"
-            "7 2 0 \n"
-            "8 2 1 \n"
-            "9 3 0 \n"
-            "10 3 1 \n"
-            "11 4 2 \n"
-            "12 4 0 \n"
-            "13 5 2 \n"
-            "14 5 1 \n",
-        };
-        graph.add_dorogovstev_golstev_mendes(n);
-        CHECK(graph.get_adjacency_list() == expected_output[n + 1]);
-        graph.clear();
     }
     SECTION("add empty graph") {
         graphw::Graph graph;
@@ -822,8 +782,8 @@ TEST_CASE("testing graph generation") {
             "0 1 \n"
             "1 0 \n",
 
-            "0 1 2 3 4 5 6 1 \n"
-            "1 0 0 2 6 \n"
+            "0 1 2 3 4 5 6 \n"
+            "1 0 2 6 \n"
             "2 0 1 3 \n"
             "3 0 2 4 \n"
             "4 0 3 5 \n"
@@ -845,6 +805,103 @@ TEST_CASE("testing graph generation") {
             }
         }
         graph.clear();
+    }
+}
+
+TEST_CASE("testing density calculation") {
+    SECTION("directed") {
+        graphw::Graph graph;
+        graph.set_directed(true);
+        graph.add_balanced_tree(2, 4);
+        CHECK(graph.density() == Approx(0.0322581));
+    }
+    SECTION("undirected") {
+        graphw::Graph graph;
+        graph.set_directed(false);
+        graph.add_balanced_tree(2, 4);
+        CHECK(graph.density() == Approx(0.0645161));
+    }
+}
+
+TEST_CASE("testing degree") {
+    SECTION("degree") {
+        graphw::Graph graph;
+        // Add nodes and edges
+        graph.add_edge("0", "1");
+        graph.add_node("2");
+        graph.add_edge("1", "3");
+        // Check existing labels
+        CHECK(graph.degree("0") == 1);
+        CHECK(graph.degree("1") == 2);
+        CHECK(graph.degree("2") == 0);
+        CHECK(graph.degree("3") == 1);
+        // Check fake label
+        try {
+            graph.degree("fake_label");
+        } catch(graphw::GraphwError & e) {
+            CHECK(std::string(e.what()) == "Given label does not exist");
+        }
+    }
+    SECTION("average degree") {
+        graphw::Graph graph;
+        // Add binomial tree of order 4
+        graph.add_binomial_tree(4);
+        // Check average degree
+        CHECK(graph.average_degree() == Approx(1.8750));
+    }
+}
+
+TEST_CASE("testing get neighbors") {
+    graphw::Graph graph;
+    // Create complete graph
+    graph.add_complete(3);
+    // All nodes should be connected to each other in a complete graph
+    std::list<std::string> expected_output = {"1", "2"};
+    CHECK(graph.get_neighbors("0") == expected_output);
+    try {
+        graph.get_neighbors("fake_label");
+    } catch(graphw::GraphwError & e) {
+        CHECK(std::string(e.what()) == "Given label does not exist");
+    }
+}
+
+TEST_CASE("testing get non neighbors") {
+    graphw::Graph graph;
+    // Add binomial tree of order 4
+    graph.add_binomial_tree(4);
+    std::list<std::string> expected_output = {
+        "0", 
+        "1", 
+        "2", 
+        "3", 
+        "6", 
+        "7", 
+        "8",
+        "9", 
+        "10", 
+        "11", 
+        "12", 
+        "13", 
+        "14", 
+        "15"
+    };
+    CHECK(graph.get_non_neighbors("5") == expected_output);
+    try {
+        graph.get_non_neighbors("fake_label");
+    } catch(graphw::GraphwError & e) {
+        CHECK(std::string(e.what()) == "Given label does not exist");
+    }
+}
+
+TEST_CASE("testing get common neighbors") {
+    graphw::Graph graph;
+    graph.add_complete(5);
+    std::list<std::string> expected_output = {"0", "3", "4"};
+    CHECK(graph.get_common_neighbors("1", "2") == expected_output);
+    try {
+        graph.get_common_neighbors("fake_label", "0");
+    } catch(graphw::GraphwError & e) {
+        CHECK(std::string(e.what()) == "Given label does not exist");
     }
 }
 
@@ -887,7 +944,7 @@ TEST_CASE("testing graph encapsulation") {
         // Check default values
         CHECK(spiral_layout.directed() == false);
         CHECK(spiral_layout.node_radius() == 10);
-        CHECK(spiral_layout.resolution() == 0.35f);
+        CHECK(spiral_layout.resolution() == Approx(0.35));
         CHECK(spiral_layout.equidistant() == false);
         // Set new values
         spiral_layout.set_directed(true);
@@ -897,7 +954,7 @@ TEST_CASE("testing graph encapsulation") {
         // Check new values
         CHECK(spiral_layout.directed() == true);
         CHECK(spiral_layout.node_radius() == 0);
-        CHECK(spiral_layout.resolution() == 1.0);
+        CHECK(spiral_layout.resolution() == Approx(1.0));
         CHECK(spiral_layout.equidistant() == true);
     }
 }

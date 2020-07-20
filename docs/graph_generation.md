@@ -131,14 +131,6 @@ Adding a circulant graph with 5 nodes and offsets {1, 2, 3} can be done as follo
 g.add_circulant(5, {1, 2, 3});
 ```
 
-## Graph.add_dorogovstev_golstev_mendes(n)
-
-Add a Dorogovtsev-Goltsev-Mendes graph.
-
-***Parameters***
-
-+ n (int) - The number of generations of the Dorogovtsev-Goltsev-Mendes graph.
-
 ## Graph.add_empty(n)
 
 Add an empty graph with no edges and n nodes.
