@@ -1,13 +1,15 @@
 OSFLAG :=
 ifeq ($(OS), Windows_NT)
 	test-executable = test.exe
+	benchmark-executable = benchmark.exe
 else
 	test-executable = test
+	benchmark-executable = benchmark
 endif
 
 sdl-flags = -lSDL2main -lSDL2
 
-.PHONY: test test-compile build-examples
+.PHONY: test test-compile benchmark benchmark-compile build-examples
 
 test: ./test/$(test-executable)
 	./test/$(test-executable)
@@ -26,6 +28,18 @@ ifeq (,$(wildcard ./test/test_main.o))
 else
 	g++ -std=c++17 ./test/test_main.o ./test/test_graphw.cpp $(sdl-flags) -o ./test/test
 endif
+
+benchmark: ./test/$(benchmark-executable)
+	./test/$(benchmark-executable)
+
+./test/$(benchmark-executable):
+	g++ -std=c++17 ./test/benchmark.cpp $(sdl-flags) -o ./test/benchmark
+
+benchmark-compile:
+	g++ -std=c++17 ./test/benchmark.cpp $(sdl-flags) -o ./test/benchmark
+
+benchmark-all: benchmark-compile benchmark
+	
 
 build-examples:
 	g++ -std=c++17 ./examples/arc_diagram.cpp $(sdl-flags)     -o ./examples/arc_diagram

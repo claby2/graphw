@@ -44,6 +44,22 @@ To build the examples:
 $ make build-examples
 ```
 
+## Benchmarking
+
+Benchmarking does not require any external dependencies.
+
+Compile with:
+
+```console
+$ make benchmark-compile
+```
+
+Benchmark with:
+
+```console
+$ make benchmark
+```
+
 ## Testing
 
 Testing requires [Catch2](https://github.com/catchorg/Catch2/).

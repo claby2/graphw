@@ -57,34 +57,22 @@ namespace graphw {
 
             // Add an edge between two nodes given two node labels
             void add_edge(std::string label1, std::string label2) {
+                int nodes_created = 0;
                 // Increment edges counter
                 edges++;
                 // Check if labels exist
                 if(labels.find(label1) == labels.end()) {
                     // Label1 does not exist, add node with label1
                     add_node(label1);
+                    nodes_created++;
                 }
                 if(labels.find(label2) == labels.end()) {
                     // Label2 does not exist, add node with label2
                     add_node(label2);
+                    nodes_created++;
                 }
-                // Check if edge already exists
-                bool exist = false;
-                std::list<std::string> neighbors = get_neighbors(label1);
-                for(auto &neighbor: neighbors) {
-                    if(neighbor == label2) {
-                        exist = true;
-                        break;
-                    }
-                }
-                neighbors = get_neighbors(label2);
-                for(auto &neighbor: neighbors) {
-                    if(neighbor == label2) {
-                        exist = true;
-                        break;
-                    }
-                }
-                if(!exist) {
+                // Check if edge already exists if both labels existed before
+                if(nodes_created > 0 || (!are_neighbors(label1, label2))) {
                     // Define new nodes based one label1 and label2
                     Node node1 = {
                         identities[label1],
@@ -103,19 +91,25 @@ namespace graphw {
 
             // Add an edge between two nodes given two node instances
             void add_edge(Node node1_, Node node2_) {
+                int nodes_created = 0;
                 // Increment edges counter
                 edges++;
                 Node node1 = node1_;
                 Node node2 = node2_;
                 if(!does_node_exist(node1)) {
                     node1 = add_node(node1_.label);
+                    nodes_created++;
                 }
                 if(!does_node_exist(node2)) {
                     node2 = add_node(node2_.label);
+                    nodes_created++;
                 }
-                graph[node1.id].push_back(node2);
-                if(!directed_) {
-                    graph[node2.id].push_back(node1);
+                // Check if edge already exists if both labels existed before
+                if(nodes_created > 0 || (!are_neighbors(node1.label, node2.label))) {
+                    graph[node1.id].push_back(node2);
+                    if(!directed_) {
+                        graph[node2.id].push_back(node1);
+                    }
                 }
             }
 
@@ -213,15 +207,8 @@ namespace graphw {
                     }
                 } else {
                     // Formula for the sum of a geometric sequence
-                    node_amount = (int)((1 - pow(children, height)) / (1 - children));
-                    int current_node = initial_size;
-                    for(int i = initial_size; i < (initial_size + node_amount); i++) {
-                        for(int j = 1; j <= children; j++) {
-                            // Add edge
-                            add_edge(std::to_string(i), std::to_string(current_node + j));
-                        }
-                        current_node += children;
-                    }
+                    node_amount = (int)((1 - pow(children, height + 1)) / (1 - children));
+                    add_full_mary_tree(children, node_amount);
                 }
             }
 
@@ -234,16 +221,8 @@ namespace graphw {
                     throw GraphwError("Invalid graph properties, m2 should be >=0");
                 }
                 int initial_size = graph.size();
-                // Create clique lambda function
-                auto create_clique = [&](int first_node, int m) {
-                    for(int i = first_node; i < (first_node + m); i++) {
-                        for(int j = i + 1; j < (first_node + m); j++) {
-                            add_edge(std::to_string(i), std::to_string(j));
-                        }
-                    }
-                };
                 // Create first clique
-                create_clique(initial_size, m1);
+                add_complete(m1);
                 if(m2 > 0) {
                     // Update initial size
                     initial_size = graph.size();
@@ -258,7 +237,7 @@ namespace graphw {
                 // Update initial size
                 initial_size = graph.size();
                 // Create second clique
-                create_clique(initial_size, m1);
+                add_complete(m1);
                 // Connect path with second clique
                 add_edge(std::to_string(initial_size - 1), std::to_string(initial_size));
             }
@@ -285,12 +264,10 @@ namespace graphw {
                             int u = edges_vector[j - initial_size].id1 + n;
                             int v = edges_vector[j - initial_size].id2 + n;
                             add_edge(std::to_string(u), std::to_string(v));
-                            Edge edge = {u, v};
-                            edges_vector.push_back(edge);
+                            edges_vector.push_back({u, v});
                         }
                         add_edge(std::to_string(0), std::to_string(n));
-                        Edge edge = {0, n};
-                        edges_vector.push_back(edge);
+                        edges_vector.push_back({0, n});
                         n *= 2;
                     }
                 }
@@ -307,7 +284,7 @@ namespace graphw {
                     } else {
                         int initial_size = graph.size();
                         for(int i = initial_size; i < (initial_size + n); i++) {
-                            for(int j = i + 1; j < (initial_size + n); j++) {
+                            for(int j = (i + 1); j < (initial_size + n); j++) {
                                 add_edge(std::to_string(i), std::to_string(j));
                             }
                         }
@@ -382,9 +359,7 @@ namespace graphw {
                 } else if(n > 0) {
                     int initial_size = graph.size();
                     // Add nodes
-                    for(int i = initial_size; i < (initial_size + n); i++) {
-                        add_node(std::to_string(i));
-                    }
+                    add_empty(n);
                     // Add edges
                     for(int i = initial_size; i < (initial_size + n); i++) {
                         for(auto const& offset : offsets) {
@@ -411,15 +386,18 @@ namespace graphw {
                 if(n < 0) {
                     throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
                 }
-                int initial_size = graph.size();
-                add_empty(n);
-                int current_node = initial_size;
-                for(int i = initial_size; (i < (initial_size + n)) && (current_node < n); i++) {
-                    for(int j = 1; (j <= m) && ((current_node + j) < n); j++) {
-                        // Add edge
-                        add_edge(std::to_string(i), std::to_string(current_node + j));
+                if(m == 0) {
+                    add_empty(n);
+                } else {
+                    int initial_size = graph.size();
+                    int current_node = initial_size;
+                    for(int i = initial_size; (i < (initial_size + n)) && (current_node < n); i++) {
+                        for(int j = 1; (j <= m) && ((current_node + j) < n); j++) {
+                            // Add edge
+                            add_edge(std::to_string(i), std::to_string(current_node + j));
+                        }
+                        current_node += m;
                     }
-                    current_node += m;
                 }
             }
 
@@ -430,9 +408,7 @@ namespace graphw {
                 } else if(n > 0) {
                     int initial_size = graph.size();
                     // Add nodes
-                    for(int i = initial_size; i < (initial_size + (2 * n)); i++) {
-                        add_node(std::to_string(i));
-                    }
+                    add_empty(2 * n);
                     // Add edges
                     for(int i = initial_size; i < (initial_size + n); i++) {
                         if(i > initial_size) {
@@ -458,18 +434,11 @@ namespace graphw {
                     throw GraphwError("Invalid graph properties, n should be >=0");
                 }
                 int initial_size = graph.size();
-                // Offset m and n to add additional nodes
-                m += initial_size;
-                n += initial_size;
                 // Create clique
-                for(int i = initial_size; i < m; i++) {
-                    for(int j = i + 1; j < m; j++) {
-                        add_edge(std::to_string(i), std::to_string(j));
-                    }
-                }
+                add_complete(m);
                 if(n > 0) {
                     // Connect clique with first path node
-                    add_edge(std::to_string(m - 1), std::to_string(m));
+                    add_edge(std::to_string((initial_size + m) - 1), std::to_string(initial_size + m));
                     std::list<std::string> path_nodes;
                     for(int i = m; i < (m + n); i++) {
                         path_nodes.push_back(std::to_string(i));
@@ -708,6 +677,23 @@ namespace graphw {
             bool does_node_exist(Node node) {
                 int expected_id = identities[node.label];
                 return node.id == expected_id;
+            }
+
+            // Return if two labels are node neighbors
+            bool are_neighbors(std::string label1, std::string label2) {
+                std::list<std::string> neighbors = get_neighbors(label1);
+                for(auto &neighbor: neighbors) {
+                    if(neighbor == label2) {
+                        return true;
+                    }
+                }
+                neighbors = get_neighbors(label2);
+                for(auto &neighbor: neighbors) {
+                    if(neighbor == label1) {
+                        return true;
+                    }
+                }
+                return false;
             }
     };
 
