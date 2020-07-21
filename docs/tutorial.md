@@ -41,13 +41,17 @@ g.add_node("0");
 g.add_node("1");
 ```
 
-Additionally, a node can be added without passing a label as an argument. If this is the case, the method would automatically assign a label. This new label would be equal to the node id as a `std::string`.
-
 At this point, the graph `g` contains two nodes.
+
+Additionally, a node can be added without passing a label as an argument. If this is the case, the method would automatically assign a label. This new label would be equal to the node id as a `std::string`. This means that the following example would successfully add a node:
+
+```cpp
+g.add_node();
+```
 
 ## Adding edges
 
-Add an edge between two nodes given their labels.
+We can add an edge between two nodes by referencing their labels through the following:
 
 ```cpp
 g.add_edge("0", "1");
@@ -55,7 +59,7 @@ g.add_edge("0", "1");
 
 ## Drawing the graph
 
-The same function, `draw()` can be used to draw and display any graph type. Note that this requires [SDL2](http://libsdl.org/download-2.0.php).
+The function `draw()` can be used to draw and display any graph type. Note that this requires [SDL2](http://libsdl.org/download-2.0.php).
 
 ```cpp
 graphw::draw(g);

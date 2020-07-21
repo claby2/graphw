@@ -28,7 +28,7 @@ int main() {
 
 ## Circular Layout
 
-Position nodes in a circle
+Position nodes in a circle.
 
 ***Additional methods and properties***
 
