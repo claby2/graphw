@@ -11,6 +11,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <limits>
 
 #include <SDL2/SDL.h>
 
@@ -123,6 +124,10 @@ namespace graphw {
 
     void set_window_title(SpiralLayout& sl) {
         SDL_SetWindowTitle(window, "Spiral Layout");
+    }
+
+    void set_window_title(ForceDirectedLayout& fdl) {
+        SDL_SetWindowTitle(window, "Force Directed Layout");
     }
 
     // Render an Arc Diagram graph
@@ -345,7 +350,11 @@ namespace graphw {
     }
 
     // Render Random Layout graph
-    std::vector<Position> render_random(RandomLayout &rl, std::vector<std::pair<float, float> > &random_positions, bool first_render) {
+    std::vector<Position> render_random(
+        RandomLayout &rl, 
+        std::vector<std::pair<float, float> > &random_positions, 
+        bool first_render) {
+
         const int node_radius = rl.node_radius();
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         // Draw nodes
@@ -385,6 +394,172 @@ namespace graphw {
         return node_positions;
     }
 
+    // Render Force Directed Layout graph
+    std::vector<Position> render_random(
+        ForceDirectedLayout &fd, 
+        std::vector<std::pair<float, float> > &random_positions, 
+        bool first_render) {
+
+        std::vector<Position> node_positions;
+        std::vector<std::pair<float, float> > movement(fd.number_of_nodes(), {0.0, 0.0});
+        const int node_radius = fd.node_radius();
+        const int iterations = 300;
+        float temperature = 0.1;
+        // Change in temperature per iteration
+        float dt = temperature / (float)(iterations + 1);
+        // Optimal distance
+        float k = (float)(sqrt(1.0 / fd.number_of_nodes()));
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+        if(first_render) {
+            // Set random positions
+            for(int i = 0; i < fd.number_of_nodes(); i++) {
+                random_positions.push_back(std::make_pair(
+                    (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
+                    (static_cast<float>(rand()) / static_cast<float>(RAND_MAX))
+                ));
+            }
+            for(int iter = 0; iter < iterations; iter++) {
+                for(int i = 0; i < fd.number_of_nodes(); i++) {
+                    // Calculate repulsion
+                    for(int j = (i + 1); j < fd.number_of_nodes(); j++) {
+                        float delta_x = random_positions[i].first - random_positions[j].first;
+                        float delta_y = random_positions[i].second - random_positions[j].second;
+                        float distance = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+                        float repulsion = (k * k) / distance;
+                        // Update movement vector for node i
+                        movement[i].first += (delta_x / distance) * repulsion;
+                        movement[i].second += (delta_y / distance) * repulsion;
+                        // Update movemnt vector for node j
+                        movement[j].first -= (delta_x / distance) * repulsion;
+                        movement[j].second -= (delta_y / distance) * repulsion;
+                    }
+                    // Calculate attraction
+                    for(int j = 0; j < fd.graph[i].size(); j++) {
+                        int neighbor_id = fd.graph[i][j].id;
+                        if(neighbor_id > i) {
+                            continue;
+                        }
+                        float delta_x = random_positions[i].first - random_positions[neighbor_id].first;
+                        float delta_y = random_positions[i].second - random_positions[neighbor_id].second;
+                        float distance = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+                        float attraction = (distance * distance) / k;
+                        // Update movement vector for node i
+                        movement[i].first -= (delta_x / distance) * attraction;
+                        movement[i].second -= (delta_y / distance) * attraction;
+                        // Update movemnt vector for node j
+                        movement[neighbor_id].first += (delta_x / distance) * attraction;
+                        movement[neighbor_id].second += (delta_y / distance) * attraction;
+                    }
+                }
+                for(int i = 0; i < fd.number_of_nodes(); i++) {
+                    // Limit maximum movement to temperature
+                    float movement_distance = sqrt((movement[i].first * movement[i].first) + (movement[i].second * movement[i].second));
+                    float capped_movement = std::min(movement_distance, temperature);
+                    float capped_movement_x = (movement[i].first / movement_distance) * capped_movement;
+                    float capped_movement_y = (movement[i].second / movement_distance) * capped_movement;
+                    random_positions[i].first += capped_movement_x;
+                    random_positions[i].second += capped_movement_y;
+                }
+                // Cool down temperature as a better configuration approaches
+                temperature -= dt;
+            }
+            float x_min = std::numeric_limits<float>::max();
+            float x_max = std::numeric_limits<float>::lowest();
+            float y_min = std::numeric_limits<float>::max();
+            float y_max = std::numeric_limits<float>::lowest();
+            for(int i = 0; i < random_positions.size(); i++) {
+                if(random_positions[i].first < x_min) {
+                    x_min = random_positions[i].first;
+                }
+                if(random_positions[i].first > x_max) {
+                    x_max = random_positions[i].first;
+                }
+                if(random_positions[i].second < y_min) {
+                    y_min = random_positions[i].second;
+                }
+                if(random_positions[i].second > y_max) {
+                    y_max = random_positions[i].second;
+                }
+            }
+            float width = x_max - x_min;
+            float height = y_max - y_min;
+            // Get scale factor
+            float x_scale = 1.0 / width;
+            float y_scale = 1.0 / height;
+            float scale = 0.9 * (x_scale < y_scale ? x_scale : y_scale);
+            float center_x = x_max + x_min;
+            float center_y = y_max + y_min;
+            float offset_x = (center_x / 2.0) * scale;
+            float offset_y = (center_y / 2.0) * scale;
+            for(int i = 0; i < random_positions.size(); i++) {
+                random_positions[i].first = ((random_positions[i].first * scale) - offset_x) + 0.5;
+                random_positions[i].second = ((random_positions[i].second * scale) - offset_y) + 0.5;
+            }
+        }
+        for(int i = 0; i < fd.number_of_nodes(); i++) {
+            int node_x = (int)((random_positions[i].first * (window_width - node_radius)) + node_radius);
+            int node_y = (int)((random_positions[i].second * (window_height - node_radius)) + node_radius);
+            draw_circle(node_x, node_y, node_radius);
+            node_positions.push_back({node_x, node_y});
+        }
+        // Draw edges
+        for(int i = 0; i < fd.graph.size(); i++) {
+            for(int j = 0; j < fd.graph[i].size(); j++) {
+                // Draw edge (line) from node i to j
+                int node1_id = i;
+                int node2_id = (int)(fd.graph[i][j].id);
+                SDL_RenderDrawLine(
+                    renderer,
+                    node_positions[node1_id].x,
+                    node_positions[node1_id].y,
+                    node_positions[node2_id].x,
+                    node_positions[node2_id].y
+                );
+            }
+        }
+        return node_positions;
+    }
+
+    namespace {
+        // Draw random graph layouts which need to cache random positions 
+        template<typename Graph>
+        void draw_random(Graph &g, bool force_close = true) {
+            // Seed random
+            srand(time(NULL));
+            init();
+            set_window_title(g);
+            bool quit = false;
+            bool redraw = true;
+            SDL_Event event;
+            // Cache random positions
+            std::vector<std::pair<float, float> > random_positions;
+            bool first_render = true;
+            while(!quit && SDL_WaitEvent(&event)) {
+                if(event.type == SDL_QUIT) {
+                    quit = true;
+                } else if(event.type == SDL_WINDOWEVENT) {
+                    if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                        window_width = event.window.data1;
+                        window_height = event.window.data2;
+                        redraw = true;
+                    }
+                }
+                if(redraw) {
+                    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                    SDL_RenderClear(renderer);
+                    // Call render random
+                    render_random(g, random_positions, first_render);
+                    SDL_RenderPresent(renderer);
+                    redraw = false;
+                    first_render = false;
+                }
+            }
+            if(force_close) {
+                close();
+            }
+        }
+    } // anonymous namespace
+
     // Draw a given graph
     template<typename Graph>
     void draw(Graph &g, bool force_close = true) {
@@ -416,41 +591,14 @@ namespace graphw {
         }
     }
 
-    // Random layout requires cache and random seed
-    template<>
-    void draw(RandomLayout &rl, bool force_close) {
-        // Seed random
-        srand(time(NULL));
-        init();
-        set_window_title(rl);
-        bool quit = false;
-        bool redraw = true;
-        SDL_Event event;
-        // Cache random positions
-        std::vector<std::pair<float, float> > random_positions;
-        bool first_render = true;
-        while(!quit && SDL_WaitEvent(&event)) {
-            if(event.type == SDL_QUIT) {
-                quit = true;
-            } else if(event.type == SDL_WINDOWEVENT) {
-                if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                    window_width = event.window.data1;
-                    window_height = event.window.data2;
-                    redraw = true;
-                }
-            }
-            if(redraw) {
-                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                SDL_RenderClear(renderer);
-                render_random(rl, random_positions, first_render);
-                SDL_RenderPresent(renderer);
-                redraw = false;
-                first_render = false;
-            }
-        }
-        if(force_close) {
-            close();
-        }
+    // Draw random layout graph
+    inline void draw(RandomLayout &rl, bool force_close = true) {
+        draw_random(rl);
+    }
+
+    // Draw force directed layout
+    inline void draw(ForceDirectedLayout &fd, bool force_close = true) {
+        draw_random(fd);
     }
 } // namespace graphw
 #endif

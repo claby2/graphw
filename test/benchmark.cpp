@@ -1,7 +1,10 @@
+#include <stdlib.h> 
+
 #include <chrono>
 #include <exception>
-#include <list>
 #include <iostream>
+#include <list>
+#include <vector>
 
 #include "../graphw/graphw.hpp"
 #include "../graphw/graphw_draw.hpp"

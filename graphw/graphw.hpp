@@ -785,5 +785,26 @@ namespace graphw {
             bool equidistant_;
             bool directed_;
     };
+
+    class ForceDirectedLayout : public Graph {
+        public:
+            ForceDirectedLayout(bool new_directed_ = false, int new_node_radius_ = 20) 
+                : directed_(new_directed_), node_radius_(new_node_radius_) { }
+
+            // Return the node radius
+            inline int node_radius() {
+                return node_radius_;
+            }
+
+            // Set the node radius from given int
+            inline void set_node_radius(int new_node_radius_) {
+                node_radius_ = new_node_radius_;
+            }
+            
+        private:
+            int node_radius_;
+            bool directed_;
+
+    };
 } // namespace graphw
 #endif
