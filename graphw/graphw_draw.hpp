@@ -403,7 +403,7 @@ namespace graphw {
         std::vector<Position> node_positions;
         std::vector<std::pair<float, float> > movement(fd.number_of_nodes(), {0.0, 0.0});
         const int node_radius = fd.node_radius();
-        const int iterations = 300;
+        const int iterations = fd.iterations();
         float temperature = 0.1;
         // Change in temperature per iteration
         float dt = temperature / (float)(iterations + 1);

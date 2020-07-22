@@ -6,6 +6,7 @@
 + [Circular Layout](#circular-layout)
 + [Random Layout](#random-layout)
 + [Spiral Layout](#spiral-layout)
++ [Force Directed Layout](#force-directed-layout)
 
 graphw supports multiple graph types. All graph layouts can be either directed or undirected.
 
@@ -114,6 +115,42 @@ int main() {
     g.set_node_radius(5);
     g.set_resolution(0.5);
     g.set_equidistant(true);
+    graphw::draw(g);
+}
+```
+
+## Force-Directed Layout
+
+Position nodes using a force-directed graph drawing algorithm.
+
+The algorithm is based on the Fruchterman-Reingold algorithm.
+The implementation of the algorithm in graphw starts by randomly positioning nodes.
+
+***Additional methods and properties***
+
++ node radius (int, default 20) - The radius of each node.
+
+node radius can be set with `g.set_node_radius(new_node_radius)`.
+
+node radius can be returned with `g.node_radius()`.
+
++ iterations (int, default 300) - The number of iterations the algorithm goes through.
+
+iterations can be set with `g.set_iterations(new_iterations)`.
+
+iterations can be returned with `g.iterations()`.
+
+***Example***
+
+```cpp
+#include <graphw/graphw.hpp>
+#include <graphw/graphw_draw.hpp>
+
+int main() {
+    graphw::ForceDirectedLayout g;
+    g.set_directed(true);
+    g.set_node_radius(5);
+    g.set_iterations(50);
     graphw::draw(g);
 }
 ```

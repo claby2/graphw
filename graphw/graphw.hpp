@@ -788,8 +788,8 @@ namespace graphw {
 
     class ForceDirectedLayout : public Graph {
         public:
-            ForceDirectedLayout(bool new_directed_ = false, int new_node_radius_ = 20) 
-                : directed_(new_directed_), node_radius_(new_node_radius_) { }
+            ForceDirectedLayout(bool new_directed_ = false, int new_node_radius_ = 20, int new_iterations_ = 300) 
+                : directed_(new_directed_), node_radius_(new_node_radius_), iterations_(new_iterations_) { }
 
             // Return the node radius
             inline int node_radius() {
@@ -800,9 +800,20 @@ namespace graphw {
             inline void set_node_radius(int new_node_radius_) {
                 node_radius_ = new_node_radius_;
             }
+
+            // Return the number of iterations
+            inline int iterations() {
+                return iterations_;
+            }
+
+            // Set the iterations from given int
+            inline void set_iterations(int new_iterations_) {
+                iterations_ = new_iterations_;
+            }
             
         private:
             int node_radius_;
+            int iterations_;
             bool directed_;
 
     };
