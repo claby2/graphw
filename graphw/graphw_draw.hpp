@@ -33,6 +33,11 @@ namespace graphw {
         int y;
     };
 
+    struct PositionFloat {
+        float x;
+        float y;
+    };
+
     // Initialize SDL2
     void init() {
         if(!initialized) {
@@ -401,7 +406,7 @@ namespace graphw {
         bool first_render) {
 
         std::vector<Position> node_positions;
-        std::vector<std::pair<float, float> > movement(fd.number_of_nodes(), {0.0, 0.0});
+        std::vector<PositionFloat> movement(fd.number_of_nodes(), {0.0, 0.0});
         const int node_radius = fd.node_radius();
         const int iterations = fd.iterations();
         float temperature = 0.1;
@@ -427,11 +432,11 @@ namespace graphw {
                         float distance = sqrt((delta_x * delta_x) + (delta_y * delta_y));
                         float repulsion = (k * k) / distance;
                         // Update movement vector for node i
-                        movement[i].first += (delta_x / distance) * repulsion;
-                        movement[i].second += (delta_y / distance) * repulsion;
+                        movement[i].x += (delta_x / distance) * repulsion;
+                        movement[i].y += (delta_y / distance) * repulsion;
                         // Update movemnt vector for node j
-                        movement[j].first -= (delta_x / distance) * repulsion;
-                        movement[j].second -= (delta_y / distance) * repulsion;
+                        movement[j].x -= (delta_x / distance) * repulsion;
+                        movement[j].y -= (delta_y / distance) * repulsion;
                     }
                     // Calculate attraction
                     for(int j = 0; j < fd.graph[i].size(); j++) {
@@ -444,19 +449,19 @@ namespace graphw {
                         float distance = sqrt((delta_x * delta_x) + (delta_y * delta_y));
                         float attraction = (distance * distance) / k;
                         // Update movement vector for node i
-                        movement[i].first -= (delta_x / distance) * attraction;
-                        movement[i].second -= (delta_y / distance) * attraction;
+                        movement[i].x -= (delta_x / distance) * attraction;
+                        movement[i].y -= (delta_y / distance) * attraction;
                         // Update movemnt vector for node j
-                        movement[neighbor_id].first += (delta_x / distance) * attraction;
-                        movement[neighbor_id].second += (delta_y / distance) * attraction;
+                        movement[neighbor_id].x += (delta_x / distance) * attraction;
+                        movement[neighbor_id].y += (delta_y / distance) * attraction;
                     }
                 }
                 for(int i = 0; i < fd.number_of_nodes(); i++) {
                     // Limit maximum movement to temperature
-                    float movement_distance = sqrt((movement[i].first * movement[i].first) + (movement[i].second * movement[i].second));
+                    float movement_distance = sqrt((movement[i].x * movement[i].x) + (movement[i].y * movement[i].y));
                     float capped_movement = std::min(movement_distance, temperature);
-                    float capped_movement_x = (movement[i].first / movement_distance) * capped_movement;
-                    float capped_movement_y = (movement[i].second / movement_distance) * capped_movement;
+                    float capped_movement_x = (movement[i].x / movement_distance) * capped_movement;
+                    float capped_movement_y = (movement[i].y / movement_distance) * capped_movement;
                     random_positions[i].first += capped_movement_x;
                     random_positions[i].second += capped_movement_y;
                 }

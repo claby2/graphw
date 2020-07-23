@@ -959,6 +959,21 @@ TEST_CASE("testing graph encapsulation") {
         CHECK(spiral_layout.resolution() == Approx(1.0));
         CHECK(spiral_layout.equidistant() == true);
     }
+    SECTION("force directed layout") {
+        graphw::ForceDirectedLayout force_directed_layout;
+        // Check default values
+        CHECK(force_directed_layout.directed() == false);
+        CHECK(force_directed_layout.node_radius() == 20);
+        CHECK(force_directed_layout.iterations() == 300);
+        // Set new values
+        force_directed_layout.set_directed(true);
+        force_directed_layout.set_node_radius(0);
+        force_directed_layout.set_iterations(0);
+        // Check new values
+        CHECK(force_directed_layout.directed() == true);
+        CHECK(force_directed_layout.node_radius() == 0);
+        CHECK(force_directed_layout.iterations() == 0);
+    }
 }
 
 TEST_CASE("testing graph rendering") {
@@ -1086,5 +1101,35 @@ TEST_CASE("testing graph rendering") {
                 CHECK(output[i].y == expected_output[i].y);
             }
         }
+    }
+    SECTION("force directed layout") {
+        // Set random seed to fixed 123
+        srand(123);
+        graphw::ForceDirectedLayout force_directed_layout;
+        force_directed_layout.add_complete(10);
+        std::vector<graphw::Position> expected_output = {
+            {598, 311},
+            {222, 284},
+            {330, 457},
+            {213, 450},
+            {83, 389},
+            {386, 118},
+            {159, 120},
+            {358, 111},
+            {168, 191},
+            {61, 42}
+        };
+        std::vector<std::pair<float, float> > random_positions;
+        // Simulate first render random
+        std::vector<graphw::Position> output = graphw::render_random(
+            force_directed_layout, 
+            random_positions, 
+            true
+        );
+        CHECK(output.size() == expected_output.size());
+        for(int i = 0; i < expected_output.size(); i++) {
+            CHECK(output[i].x == expected_output[i].x);
+            CHECK(output[i].y == expected_output[i].y);
+        }   
     }
 }
