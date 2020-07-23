@@ -19,7 +19,7 @@ Documentation can be found in [`docs/`](./docs/readme.md).
 
 ### Basic example
 
-Here is a simple example which constructs and models a graph in a circular layout:
+A simple example that constructs and models a graph in a circular layout.
 
 ```cpp
 #include <graphw/graphw.hpp>
@@ -33,6 +33,24 @@ int main() {
     graphw::draw(g);
 }
 ```
+
+### Spiral layout example
+
+Example of a balanced tree in a spiral layout.
+
+```cpp
+#include <graphw/graphw.hpp>
+#include <graphw/graphw_draw.hpp>
+
+int main() {
+    graphw::SpiralLayout g;
+    g.set_node_radius(0);
+    g.add_balanced_tree(2, 10);
+    graphw::draw(g);
+}
+```
+
+![spiral_layout_example](docs/images/spiral_layout_balanced_tree.png)
 
 ### Additional examples
 
