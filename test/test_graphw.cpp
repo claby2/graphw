@@ -1133,3 +1133,26 @@ TEST_CASE("testing graph rendering") {
         }   
     }
 }
+
+TEST_CASE("testing draw color setting") {
+    // Return color struct
+    auto get_color = [](uint8_t red, uint8_t green, uint8_t blue) {
+        graphw::Color color = {red, green, blue};
+        return color;
+    };
+    // Test default values
+    // Background: 0x00, 0x00, 0x00
+    // Edges: 0xFF, 0xFF, 0xFF
+    // Nodes: 0xFF, 0xFF, 0xFF
+    CHECK(graphw::background_color == get_color(0xFF, 0xFF, 0xFF));
+    CHECK(graphw::edge_color == get_color(0x00, 0x00, 0x00));
+    CHECK(graphw::node_color == get_color(0x00, 0x00, 0x00));
+    // Set new colors
+    graphw::set_background_color(200, 0xF4, 0);
+    graphw::set_edge_color(200, 0, 0xF4);
+    graphw::set_node_color(0, 200, 0xF4);
+    // Check new colors
+    CHECK(graphw::background_color == get_color(0xC8, 0xF4, 0x00));
+    CHECK(graphw::edge_color == get_color(0xC8, 0x00, 0xF4));
+    CHECK(graphw::node_color == get_color(0x00, 0xC8, 0xF4));
+}
