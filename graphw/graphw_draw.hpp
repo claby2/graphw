@@ -54,7 +54,7 @@ namespace graphw {
     SDL_Renderer* renderer = nullptr;
     Color background_color = {0xFF, 0xFF, 0xFF};
     Color edge_color = {0x00, 0x00, 0x00};
-    Color node_color = {0x00, 0x00, 0x00};;
+    Color node_color = {0x00, 0x00, 0x00};
 
     // Initialize SDL2
     void init() {
@@ -81,12 +81,12 @@ namespace graphw {
             SDL_SetWindowSize(window, default_window_width, default_window_height);
             SDL_Surface *surface = SDL_CreateRGBSurface(
                 0, 
-                default_window_width, 
-                default_window_height, 
+                default_window_width,
+                default_window_height,
                 32, 
-                0x00ff0000, 
-                0x0000ff00, 
-                0x000000ff, 
+                0x00ff0000,
+                0x0000ff00,
+                0x000000ff,
                 0xff000000
             );
             SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
