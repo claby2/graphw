@@ -1022,7 +1022,7 @@ TEST_CASE("testing graph rendering") {
             {486, 463}};
         std::vector<std::pair<float, float> > random_positions;
         // Simulate first render random
-        std::vector<graphw::Position> output = graphw::render_random(
+        std::vector<graphw::Position> output = graphw::render(
             random_layout,
             random_positions,
             true);
@@ -1098,7 +1098,7 @@ TEST_CASE("testing graph rendering") {
             {61, 42}};
         std::vector<std::pair<float, float> > random_positions;
         // Simulate first render random
-        std::vector<graphw::Position> output = graphw::render_random(
+        std::vector<graphw::Position> output = graphw::render(
             force_directed_layout,
             random_positions,
             true);

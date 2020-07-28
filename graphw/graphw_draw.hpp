@@ -376,7 +376,7 @@ std::vector<Position> render(SpiralLayout &sl) {
 }
 
 // Render Random Layout graph
-std::vector<Position> render_random(
+std::vector<Position> render(
     RandomLayout &rl,
     std::vector<std::pair<float, float> > &random_positions,
     bool first_render) {
@@ -418,7 +418,7 @@ std::vector<Position> render_random(
 }
 
 // Render Force Directed Layout graph
-std::vector<Position> render_random(
+std::vector<Position> render(
     ForceDirectedLayout &fd,
     std::vector<std::pair<float, float> > &random_positions,
     bool first_render) {
@@ -569,7 +569,7 @@ void draw_random(Graph &g, bool force_close = true) {
             SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
             SDL_RenderClear(renderer);
             // Call render random
-            render_random(g, random_positions, first_render);
+            render(g, random_positions, first_render);
             SDL_RenderPresent(renderer);
             redraw = false;
             first_render = false;
