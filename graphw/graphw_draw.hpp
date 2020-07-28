@@ -46,6 +46,7 @@ bool save_as_bmp = false;
 std::string bmp_file_path;
 const int default_window_width = 640;
 const int default_window_height = 480;
+const float default_fps = 60.0;
 int window_width = default_window_width;
 int window_height = default_window_height;
 SDL_Window *window = nullptr;
@@ -55,17 +56,18 @@ Color edge_color = {0x00, 0x00, 0x00};
 Color node_color = {0x00, 0x00, 0x00};
 
 // Initialize SDL2
-void init() {
+void init(bool resizable, int width = window_width, int height = window_height) {
     if (!initialized) {
+        uint32_t flags = resizable ? SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN : SDL_WINDOW_SHOWN;
         SDL_Init(SDL_INIT_VIDEO);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
         window = SDL_CreateWindow(
             "graphw",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            window_width,
-            window_height,
-            SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
+            width,
+            height,
+            flags);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         initialized = true;
     }
@@ -547,7 +549,7 @@ template <typename Graph>
 void draw_random(Graph &g, bool force_close = true) {
     // Seed random
     srand(time(NULL));
-    init();
+    init(true);
     set_window_title(g);
     bool quit = false;
     bool redraw = true;
@@ -579,12 +581,72 @@ void draw_random(Graph &g, bool force_close = true) {
         close();
     }
 }
+
+// Animate random graph layouts wic need to cache random positions
+template <typename Graph>
+void animate_random(Graph &g, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+    srand(time(NULL));
+    // Init without resizable property
+    init(false, width, height);
+    set_window_title(g);
+    bool quit = false;
+    SDL_Event event;
+    float delay = 1000.0 / fps;
+    int current_node = 0;
+    bool reset = false;
+    window_width = width;
+    window_height = height;
+    Graph animated_graph = g;
+    for (int i = 0; i < animated_graph.number_of_nodes(); i++) {
+        // Clear each node neighbor
+        animated_graph.graph[i].clear();
+    }
+    std::vector<std::pair<float, float> > random_positions;
+    bool first_render = true;
+    while (!quit) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                quit = true;
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_r) {
+                    reset = true;
+                }
+            }
+        }
+        if (reset) {
+            for (int i = 0; i < animated_graph.number_of_nodes(); i++) {
+                // Clear each node neighbor
+                animated_graph.graph[i].clear();
+            }
+            current_node = 0;
+            reset = false;
+        }
+        if (current_node < g.number_of_nodes()) {
+            SDL_Delay(delay);
+            animated_graph.graph[current_node] = g.graph[current_node];
+            SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
+            SDL_RenderClear(renderer);
+            if (first_render) {
+                // If it is the first render, fill random positions vector
+                render(g, random_positions, first_render);
+            } else {
+                render(animated_graph, random_positions, first_render);
+                SDL_RenderPresent(renderer);
+            }
+            current_node++;
+            first_render = false;
+        }
+    }
+    if (force_close) {
+        close();
+    }
+}
 }  // anonymous namespace
 
 // Draw a given graph
 template <typename Graph>
 void draw(Graph &g, bool force_close = true) {
-    init();
+    init(true);
     set_window_title(g);
     bool quit = false;
     bool redraw = true;
@@ -620,6 +682,67 @@ inline void draw(RandomLayout &rl, bool force_close = true) {
 // Draw force directed layout
 inline void draw(ForceDirectedLayout &fd, bool force_close = true) {
     draw_random(fd);
+}
+
+// Animate a given graph
+template <typename Graph>
+void animate(Graph &g, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+    // Init without resizable property
+    init(false, width, height);
+    set_window_title(g);
+    bool quit = false;
+    SDL_Event event;
+    float delay = 1000.0 / fps;
+    int current_node = 0;
+    bool reset = false;
+    window_width = width;
+    window_height = height;
+    Graph animated_graph = g;
+    for (int i = 0; i < animated_graph.number_of_nodes(); i++) {
+        // Clear each node neighbor
+        animated_graph.graph[i].clear();
+    }
+    while (!quit) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                quit = true;
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_r) {
+                    reset = true;
+                }
+            }
+        }
+        if (reset) {
+            for (int i = 0; i < animated_graph.number_of_nodes(); i++) {
+                // Clear each node neighbor
+                animated_graph.graph[i].clear();
+            }
+            current_node = 0;
+            reset = false;
+        }
+        if (current_node < g.number_of_nodes()) {
+            SDL_Delay(delay);
+            animated_graph.graph[current_node] = g.graph[current_node];
+            SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
+            SDL_RenderClear(renderer);
+            render(animated_graph);
+            SDL_RenderPresent(renderer);
+            current_node++;
+        }
+    }
+    if (force_close) {
+        close();
+    }
+}
+
+// Animate random layout graph
+inline void animate(RandomLayout &rl, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+    animate_random(rl, width, height, fps, force_close);
+}
+
+// Animate force directed layout
+inline void animate(ForceDirectedLayout &fd, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+    animate_random(fd, width, height, fps, force_close);
 }
 }  // namespace graphw
 #endif
