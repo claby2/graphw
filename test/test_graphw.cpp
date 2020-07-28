@@ -1,11 +1,10 @@
-#include <stdlib.h> 
+#include <stdlib.h>
 
 #include <algorithm>
+#include <catch2/catch.hpp>
 #include <limits>
 #include <list>
 #include <string>
-
-#include <catch2/catch.hpp>
 
 #include "../graphw/graphw.hpp"
 #include "../graphw/graphw_draw.hpp"
@@ -17,9 +16,9 @@ TEST_CASE("testing node and edge registration") {
         REQUIRE(graph.number_of_nodes() == 0);
         REQUIRE(graph.number_of_edges() == 0);
         // Add 10 nodes and 9 edges
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             graph.add_node();
-            if(i > 0) {
+            if (i > 0) {
                 // Create edge between current node and previous node
                 graph.add_edge(std::to_string(i - 1), std::to_string(i));
             }
@@ -34,9 +33,9 @@ TEST_CASE("testing node and edge registration") {
         // Add 10 nodes with labels but add 9 edges with node struct
         graphw::Node current_node;
         graphw::Node previous_node;
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             current_node = graph.add_node();
-            if(i > 0) {
+            if (i > 0) {
                 graph.add_edge(previous_node, current_node);
             }
             previous_node = current_node;
@@ -53,7 +52,7 @@ TEST_CASE("testing node and edge registration") {
         graphw::Graph graph;
         // Label to be added 10 times
         std::string label = "Foo";
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             graph.add_node(label);
         }
         // Check number of nodes
@@ -89,7 +88,7 @@ TEST_CASE("testing graph generation") {
             auto n = GENERATE(0, 1, 10);
             std::list<std::string> path;
             // Add n nodes to path
-            for(int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {
                 path.push_back(std::to_string(i));
             }
             graph.add_path(path);
@@ -104,7 +103,7 @@ TEST_CASE("testing graph generation") {
             auto n = GENERATE(0, 1, 10);
             std::list<graphw::Node> path;
             // Add n nodes to path
-            for(int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {
                 graphw::Node node;
                 node.label = std::to_string(i);
                 path.push_back(node);
@@ -123,7 +122,7 @@ TEST_CASE("testing graph generation") {
             auto n = GENERATE(0, 1, 10);
             std::list<std::string> cycle;
             // Add n nodes to cycle
-            for(int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {
                 cycle.push_back(std::to_string(i));
             }
             graph.add_cycle(cycle);
@@ -137,7 +136,7 @@ TEST_CASE("testing graph generation") {
             auto n = GENERATE(0, 1, 10);
             std::list<graphw::Node> cycle;
             // Add n nodes to cycle
-            for(int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {
                 graphw::Node node;
                 node.label = std::to_string(i);
                 cycle.push_back(node);
@@ -160,8 +159,7 @@ TEST_CASE("testing graph generation") {
             {2, 2},
             {3, 1},
             {4, 0},
-            {5, -1}
-        };
+            {5, -1}};
         std::vector<std::string> expected_output = {
             "0 1 \n"
             "1 0 2 \n"
@@ -183,9 +181,8 @@ TEST_CASE("testing graph generation") {
 
             "0 \n",
 
-            ""
-        };
-        for(int i = 0; i < 5; i++) {
+            ""};
+        for (int i = 0; i < 5; i++) {
             Input input = inputs[i];
             graph.add_balanced_tree(input.children, input.height);
             CHECK(graph.get_adjacency_list() == expected_output[i]);
@@ -204,8 +201,7 @@ TEST_CASE("testing graph generation") {
             {2, 2},
             {3, 1},
             {4, 0},
-            {5, -1}
-        };
+            {5, -1}};
         std::vector<std::string> expected_output = {
             "",
 
@@ -233,20 +229,19 @@ TEST_CASE("testing graph generation") {
             "6 4 5 7 \n"
             "7 4 5 6 \n",
 
-            ""
-        };
-        for(int i = 0; i < 5; i++) {
+            ""};
+        for (int i = 0; i < 5; i++) {
             Input input = inputs[i];
-            if(input.m1 < 2) {
+            if (input.m1 < 2) {
                 try {
                     graph.add_barbell(input.m1, input.m2);
-                } catch(graphw::GraphwError& e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == "Invalid graph properties, m1 should be >=2");
                 }
-            } else if(input.m2 < 0) {
+            } else if (input.m2 < 0) {
                 try {
                     graph.add_barbell(input.m1, input.m2);
-                } catch(graphw::GraphwError& e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == "Invalid graph properties, m2 should be >=0");
                 }
             } else {
@@ -294,8 +289,7 @@ TEST_CASE("testing graph generation") {
             "12 13 14 8 \n"
             "13 12 \n"
             "14 15 12 \n"
-            "15 14 \n"
-        };
+            "15 14 \n"};
         graph.add_binomial_tree(order);
         CHECK(graph.get_adjacency_list() == expected_output[order]);
         graph.clear();
@@ -315,12 +309,11 @@ TEST_CASE("testing graph generation") {
 
             "0 1 2 \n"
             "1 0 2 \n"
-            "2 0 1 \n"
-        };
-        if(n == -1) {
+            "2 0 1 \n"};
+        if (n == -1) {
             try {
                 graph.add_complete(n);
-            } catch(graphw::GraphwError & e) {
+            } catch (graphw::GraphwError& e) {
                 CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(n)));
             }
         } else {
@@ -332,8 +325,8 @@ TEST_CASE("testing graph generation") {
     SECTION("add complete multipartite") {
         graphw::Graph graph;
         std::vector<std::list<int> > inputs = {
-            {1, 2, 3, -1},         // Should throw exception due to number < 0
-            {0, 0, 0, 3, 1, 2, 0}, // Zero-valued numbers should be ignored
+            {1, 2, 3, -1},          // Should throw exception due to number < 0
+            {0, 0, 0, 3, 1, 2, 0},  // Zero-valued numbers should be ignored
             {1, 2, 3, 4, 5},
             {1, 3, 5, 2, 4},
             {4, 2, 5, 3, 1},
@@ -394,13 +387,12 @@ TEST_CASE("testing graph generation") {
             "11 0 1 2 3 4 5 6 7 8 9 10 14 \n"
             "12 0 1 2 3 4 5 6 7 8 9 10 14 \n"
             "13 0 1 2 3 4 5 6 7 8 9 10 14 \n"
-            "14 0 1 2 3 4 5 6 7 8 9 10 11 12 13 \n"
-        };
-        for(int i = 0; i < 5; i++) {
-            if(i == 0) {
+            "14 0 1 2 3 4 5 6 7 8 9 10 11 12 13 \n"};
+        for (int i = 0; i < 5; i++) {
+            if (i == 0) {
                 try {
                     graph.add_complete_multipartite(inputs[i]);
-                } catch(graphw::GraphwError & e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == "Negative number of nodes not valid");
                 }
             } else {
@@ -433,10 +425,10 @@ TEST_CASE("testing graph generation") {
             "4 1 3 5 \n"
             "5 2 4 3 \n",
         };
-        if(n == -1) {
+        if (n == -1) {
             try {
                 graph.add_circular_ladder(n);
-            } catch(graphw::GraphwError & e) {
+            } catch (graphw::GraphwError& e) {
                 CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(n)));
             }
         } else {
@@ -453,12 +445,11 @@ TEST_CASE("testing graph generation") {
             std::list<int> offsets;
         };
         std::vector<Input> inputs = {
-            {-1, {1, 2, 3}}, // Should throw exception due to n < 0
+            {-1, {1, 2, 3}},  // Should throw exception due to n < 0
             {0, {1, 2, 3}},
             {10, {1}},
             {5, {1, 2}},
-            {4, {3, -2, 1}}
-        };
+            {4, {3, -2, 1}}};
         std::vector<std::string> expected_output = {
             "",
 
@@ -484,13 +475,12 @@ TEST_CASE("testing graph generation") {
             "0 3 2 1 \n"
             "1 0 3 2 \n"
             "2 0 1 3 \n"
-            "3 0 1 2 \n"
-        };
-        for(int i = 0; i < 5; i++) {
-            if(i == 0) {
+            "3 0 1 2 \n"};
+        for (int i = 0; i < 5; i++) {
+            if (i == 0) {
                 try {
                     graph.add_circulant(inputs[i].n, inputs[i].offsets);
-                } catch(graphw::GraphwError & e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(inputs[i].n)));
                 }
             } else {
@@ -515,12 +505,11 @@ TEST_CASE("testing graph generation") {
 
             "0 \n"
             "1 \n"
-            "2 \n"        
-        };
-        if(n == -1) {
+            "2 \n"};
+        if (n == -1) {
             try {
                 graph.add_empty(n);
-            } catch(graphw::GraphwError & e) {
+            } catch (graphw::GraphwError& e) {
                 CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(n)));
             }
         } else {
@@ -541,7 +530,7 @@ TEST_CASE("testing graph generation") {
             {2, 2},
             {4, 3},
             {2, 12},
-            {8, -1} // Should expect exception as n < 0
+            {8, -1}  // Should expect exception as n < 0
         };
         std::vector<std::string> expected_output = {
             "0 \n"
@@ -568,14 +557,13 @@ TEST_CASE("testing graph generation") {
             "10 4 \n"
             "11 5 \n",
 
-            ""
-        };
-        for(int i = 0; i < 5; i++) {
+            ""};
+        for (int i = 0; i < 5; i++) {
             Input input = inputs[i];
-            if(input.n < 0) {
+            if (input.n < 0) {
                 try {
                     graph.add_full_mary_tree(input.m, input.n);
-                } catch(graphw::GraphwError& e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(input.n)));
                 }
             } else {
@@ -608,10 +596,10 @@ TEST_CASE("testing graph generation") {
             "4 1 3 5 \n"
             "5 2 4 \n",
         };
-        if(n == -1) {
+        if (n == -1) {
             try {
                 graph.add_ladder(n);
-            } catch(graphw::GraphwError & e) {
+            } catch (graphw::GraphwError& e) {
                 CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(n)));
             }
         } else {
@@ -628,11 +616,11 @@ TEST_CASE("testing graph generation") {
             int n;
         };
         std::vector<Input> inputs = {
-            {1, 3}, // Should expect exception as m < 2
+            {1, 3},  // Should expect exception as m < 2
             {2, 2},
             {3, 1},
             {4, 0},
-            {5, -1} // Should expect exception as n < 0
+            {5, -1}  // Should expect exception as n < 0
         };
         std::vector<std::string> expected_output = {
             "",
@@ -652,20 +640,19 @@ TEST_CASE("testing graph generation") {
             "2 0 1 3 \n"
             "3 0 1 2 \n"
 
-            ""
-        };
-        for(int i = 0; i < 5; i++) {
+            ""};
+        for (int i = 0; i < 5; i++) {
             Input input = inputs[i];
-            if(input.m < 2) {
+            if (input.m < 2) {
                 try {
                     graph.add_lollipop(input.m, input.n);
-                } catch(graphw::GraphwError& e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == "Invalid graph properties, m should be >=2");
                 }
-            } else if(input.n < 0) {
+            } else if (input.n < 0) {
                 try {
                     graph.add_lollipop(input.m, input.n);
-                } catch(graphw::GraphwError& e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == "Invalid graph properties, n should be >=0");
                 }
             } else {
@@ -693,12 +680,11 @@ TEST_CASE("testing graph generation") {
             "0 1 2 3 \n"
             "1 0 \n"
             "2 0 \n"
-            "3 0 \n"
-        };
-        if(k == -1) {
+            "3 0 \n"};
+        if (k == -1) {
             try {
                 graph.add_star(k);
-            } catch(graphw::GraphwError & e) {
+            } catch (graphw::GraphwError& e) {
                 CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(k)));
             }
         } else {
@@ -715,8 +701,8 @@ TEST_CASE("testing graph generation") {
             int r;
         };
         std::vector<Input> inputs = {
-            {5, -5}, // Should expect exception as r must satisfy the condition 1 <= r <= n
-            {3, 4},  // Should except exception as r must satisfy the condition 1 <= r <= n
+            {5, -5},  // Should expect exception as r must satisfy the condition 1 <= r <= n
+            {3, 4},   // Should except exception as r must satisfy the condition 1 <= r <= n
             {6, 3},
             {8, 4},
             {13, 4},
@@ -754,14 +740,13 @@ TEST_CASE("testing graph generation") {
             "9 0 1 2 3 4 5 6 7 8 \n"
             "10 0 1 2 3 4 5 6 7 8 \n"
             "11 0 1 2 3 4 5 6 7 8 \n"
-            "12 0 1 2 3 4 5 6 7 8 \n"
-        };
-        for(int i = 0; i < 5; i++) {
+            "12 0 1 2 3 4 5 6 7 8 \n"};
+        for (int i = 0; i < 5; i++) {
             Input input = inputs[i];
-            if(input.r < 1 || input.r > input.n) {
+            if (input.r < 1 || input.r > input.n) {
                 try {
                     graph.add_turan(input.n, input.r);
-                } catch(graphw::GraphwError & e) {
+                } catch (graphw::GraphwError& e) {
                     CHECK(std::string(e.what()) == ("r must satisfy the condition 1 <= r <= n"));
                 }
             } else {
@@ -792,15 +777,15 @@ TEST_CASE("testing graph generation") {
             "5 0 4 6 \n"
             "6 0 5 1 \n",
         };
-        if(n == -1) {
+        if (n == -1) {
             try {
                 graph.add_wheel(n);
-            } catch(graphw::GraphwError & e) {
+            } catch (graphw::GraphwError& e) {
                 CHECK(std::string(e.what()) == ("Negative number of nodes not valid: " + std::to_string(n)));
             }
         } else {
             graph.add_wheel(n);
-            if(n == 7) {
+            if (n == 7) {
                 CHECK(graph.get_adjacency_list() == expected_output[4]);
             } else {
                 CHECK(graph.get_adjacency_list() == expected_output[n + 1]);
@@ -840,7 +825,7 @@ TEST_CASE("testing degree") {
         // Check fake label
         try {
             graph.degree("fake_label");
-        } catch(graphw::GraphwError & e) {
+        } catch (graphw::GraphwError& e) {
             CHECK(std::string(e.what()) == "Given label does not exist");
         }
     }
@@ -862,7 +847,7 @@ TEST_CASE("testing get neighbors") {
     CHECK(graph.get_neighbors("0") == expected_output);
     try {
         graph.get_neighbors("fake_label");
-    } catch(graphw::GraphwError & e) {
+    } catch (graphw::GraphwError& e) {
         CHECK(std::string(e.what()) == "Given label does not exist");
     }
 }
@@ -872,25 +857,24 @@ TEST_CASE("testing get non neighbors") {
     // Add binomial tree of order 4
     graph.add_binomial_tree(4);
     std::list<std::string> expected_output = {
-        "0", 
-        "1", 
-        "2", 
-        "3", 
-        "6", 
-        "7", 
+        "0",
+        "1",
+        "2",
+        "3",
+        "6",
+        "7",
         "8",
-        "9", 
-        "10", 
-        "11", 
-        "12", 
-        "13", 
-        "14", 
-        "15"
-    };
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15"};
     CHECK(graph.get_non_neighbors("5") == expected_output);
     try {
         graph.get_non_neighbors("fake_label");
-    } catch(graphw::GraphwError & e) {
+    } catch (graphw::GraphwError& e) {
         CHECK(std::string(e.what()) == "Given label does not exist");
     }
 }
@@ -902,7 +886,7 @@ TEST_CASE("testing get common neighbors") {
     CHECK(graph.get_common_neighbors("1", "2") == expected_output);
     try {
         graph.get_common_neighbors("fake_label", "0");
-    } catch(graphw::GraphwError & e) {
+    } catch (graphw::GraphwError& e) {
         CHECK(std::string(e.what()) == "Given label does not exist");
     }
 }
@@ -991,11 +975,10 @@ TEST_CASE("testing graph rendering") {
             {416, 240},
             {480, 240},
             {544, 240},
-            {608, 240}
-        };
+            {608, 240}};
         std::vector<graphw::Position> output = graphw::render(arc_diagram);
         CHECK(output.size() == expected_output.size());
-        for(int i = 0; i < expected_output.size(); i++) {
+        for (int i = 0; i < expected_output.size(); i++) {
             CHECK(output[i].x == expected_output[i].x);
             CHECK(output[i].y == expected_output[i].y);
         }
@@ -1013,11 +996,10 @@ TEST_CASE("testing graph rendering") {
             {146, 113},
             {253, 35},
             {386, 35},
-            {493, 113}
-        };
+            {493, 113}};
         std::vector<graphw::Position> output = graphw::render(circular_layout);
         CHECK(output.size() == expected_output.size());
-        for(int i = 0; i < expected_output.size(); i++) {
+        for (int i = 0; i < expected_output.size(); i++) {
             CHECK(output[i].x == expected_output[i].x);
             CHECK(output[i].y == expected_output[i].y);
         }
@@ -1037,17 +1019,15 @@ TEST_CASE("testing graph rendering") {
             {93, 82},
             {371, 447},
             {617, 451},
-            {486, 463}
-        };
+            {486, 463}};
         std::vector<std::pair<float, float> > random_positions;
         // Simulate first render random
         std::vector<graphw::Position> output = graphw::render_random(
             random_layout,
             random_positions,
-            true
-        );
+            true);
         CHECK(output.size() == expected_output.size());
-        for(int i = 0; i < expected_output.size(); i++) {
+        for (int i = 0; i < expected_output.size(); i++) {
             CHECK(output[i].x == expected_output[i].x);
             CHECK(output[i].y == expected_output[i].y);
         }
@@ -1068,11 +1048,10 @@ TEST_CASE("testing graph rendering") {
                 {191, 460},
                 {90, 429},
                 {0, 353},
-                {-62, 236}
-            };
+                {-62, 236}};
             std::vector<graphw::Position> output = graphw::render(spiral_layout);
             CHECK(output.size() == expected_output.size());
-            for(int i = 0; i < expected_output.size(); i++) {
+            for (int i = 0; i < expected_output.size(); i++) {
                 CHECK(output[i].x == expected_output[i].x);
                 CHECK(output[i].y == expected_output[i].y);
             }
@@ -1092,11 +1071,10 @@ TEST_CASE("testing graph rendering") {
                 {268, 460},
                 {212, 447},
                 {161, 421},
-                {118, 383}
-            };
+                {118, 383}};
             std::vector<graphw::Position> output = graphw::render(spiral_layout);
             CHECK(output.size() == expected_output.size());
-            for(int i = 0; i < expected_output.size(); i++) {
+            for (int i = 0; i < expected_output.size(); i++) {
                 CHECK(output[i].x == expected_output[i].x);
                 CHECK(output[i].y == expected_output[i].y);
             }
@@ -1117,20 +1095,18 @@ TEST_CASE("testing graph rendering") {
             {159, 120},
             {358, 111},
             {168, 191},
-            {61, 42}
-        };
+            {61, 42}};
         std::vector<std::pair<float, float> > random_positions;
         // Simulate first render random
         std::vector<graphw::Position> output = graphw::render_random(
             force_directed_layout,
             random_positions,
-            true
-        );
+            true);
         CHECK(output.size() == expected_output.size());
-        for(int i = 0; i < expected_output.size(); i++) {
+        for (int i = 0; i < expected_output.size(); i++) {
             CHECK(output[i].x == expected_output[i].x);
             CHECK(output[i].y == expected_output[i].y);
-        }   
+        }
     }
 }
 

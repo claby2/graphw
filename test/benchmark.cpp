@@ -1,4 +1,4 @@
-#include <stdlib.h> 
+#include <stdlib.h>
 
 #include <chrono>
 #include <exception>
@@ -17,19 +17,20 @@ struct BenchmarkError : public std::runtime_error {
 };
 
 class Timer {
-    public:
-        Timer() {
-            start_timepoint = std::chrono::high_resolution_clock::now();
-        }
-        ~Timer() {
-            stop();
-        }
-        void stop() {
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_timepoint).count();
-            times.push_back(duration);
-        }
-    private:
-        std::chrono::time_point<std::chrono::high_resolution_clock> start_timepoint;
+   public:
+    Timer() {
+        start_timepoint = std::chrono::high_resolution_clock::now();
+    }
+    ~Timer() {
+        stop();
+    }
+    void stop() {
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_timepoint).count();
+        times.push_back(duration);
+    }
+
+   private:
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_timepoint;
 };
 
 // Call this function before every test case
@@ -39,15 +40,15 @@ void test_case(std::string name) {
 
 // Format and print the results
 void print_results() {
-    if(test_names.size() != times.size()) {
+    if (test_names.size() != times.size()) {
         throw BenchmarkError("Results misaligned");
     } else {
         std::vector<std::string> time_strings;
         // Find the largest time
         auto max_time = -1;
         int max_time_index;
-        for(int i = 0; i < times.size(); i++) {
-            if(times[i] > max_time) {
+        for (int i = 0; i < times.size(); i++) {
+            if (times[i] > max_time) {
                 max_time = times[i];
                 max_time_index = i;
             }
@@ -55,7 +56,7 @@ void print_results() {
         }
         int max_time_string_size = time_strings[max_time_index].size();
         // Format and print
-        for(int i = 0; i < time_strings.size(); i++) {
+        for (int i = 0; i < time_strings.size(); i++) {
             time_strings[i] += std::string(max_time_string_size - time_strings[i].size(), ' ') + ": ";
             std::cout << time_strings[i] << test_names[i] << '\n';
         }
@@ -67,7 +68,7 @@ int main() {
     {
         graphw::Graph graph;
         Timer timer;
-        for(int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100000; i++) {
             graph.add_node();
         }
     }
@@ -77,7 +78,7 @@ int main() {
         graphw::Graph graph;
         graph.add_node();
         Timer timer;
-        for(int i = 1; i <= 10000; i++) {
+        for (int i = 1; i <= 10000; i++) {
             graph.add_edge(std::to_string(i - 1), std::to_string(i));
         }
     }
@@ -87,7 +88,7 @@ int main() {
         graphw::Graph graph;
         graphw::Node previous_node = graph.add_node();
         Timer timer;
-        for(int i = 1; i <= 10000; i++) {
+        for (int i = 1; i <= 10000; i++) {
             graphw::Node node = graph.add_node();
             graph.add_edge(previous_node, node);
             previous_node = node;
@@ -98,7 +99,7 @@ int main() {
     {
         graphw::Graph graph;
         std::list<std::string> labels_list;
-        for(int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             labels_list.push_back(std::to_string(i));
         }
         Timer timer;
@@ -109,7 +110,7 @@ int main() {
     {
         graphw::Graph graph;
         std::list<graphw::Node> nodes_list;
-        for(int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             graphw::Node node = graph.add_node(std::to_string(i));
             nodes_list.push_back(node);
         }
@@ -121,7 +122,7 @@ int main() {
     {
         graphw::Graph graph;
         std::list<std::string> labels_list;
-        for(int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             labels_list.push_back(std::to_string(i));
         }
         Timer timer;
@@ -132,7 +133,7 @@ int main() {
     {
         graphw::Graph graph;
         std::list<graphw::Node> nodes_list;
-        for(int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10000; i++) {
             graphw::Node node = graph.add_node(std::to_string(i));
             nodes_list.push_back(node);
         }
