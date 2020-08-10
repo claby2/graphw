@@ -35,10 +35,8 @@ struct Color {
 
 // Operator overloading equality for color comparison
 bool operator==(const graphw::Color &color1, const graphw::Color &color2) {
-    return (
-        color1.red == color2.red &&
-        color1.green == color2.green &&
-        color1.blue == color2.blue);
+    return (color1.red == color2.red && color1.green == color2.green &&
+            color1.blue == color2.blue);
 };
 
 bool initialized = false;
@@ -56,18 +54,16 @@ Color edge_color = {0x00, 0x00, 0x00};
 Color node_color = {0x00, 0x00, 0x00};
 
 // Initialize SDL2
-void init(bool resizable, int width = window_width, int height = window_height) {
+void init(bool resizable, int width = window_width,
+          int height = window_height) {
     if (!initialized) {
-        uint32_t flags = resizable ? SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN : SDL_WINDOW_SHOWN;
+        uint32_t flags = resizable ? SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN
+                                   : SDL_WINDOW_SHOWN;
         SDL_Init(SDL_INIT_VIDEO);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-        window = SDL_CreateWindow(
-            "graphw",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            width,
-            height,
-            flags);
+        window =
+            SDL_CreateWindow("graphw", SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED, width, height, flags);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         initialized = true;
     }
@@ -79,15 +75,10 @@ void close() {
         // Resize window to default dimensions
         SDL_SetWindowSize(window, default_window_width, default_window_height);
         SDL_Surface *surface = SDL_CreateRGBSurface(
-            0,
-            default_window_width,
-            default_window_height,
-            32,
-            0x00ff0000,
-            0x0000ff00,
-            0x000000ff,
-            0xff000000);
-        SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
+            0, default_window_width, default_window_height, 32, 0x00ff0000,
+            0x0000ff00, 0x000000ff, 0xff000000);
+        SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888,
+                             surface->pixels, surface->pitch);
         SDL_SaveBMP(surface, bmp_file_path.c_str());
         SDL_FreeSurface(surface);
         save_as_bmp = false;
@@ -171,38 +162,36 @@ std::vector<Position> render(ArcDiagram &ad) {
     int center_y = (int)(window_height / 2);
     int node_radius = (int)((window_width / (ad.number_of_nodes() * 2)) / 2);
     // Draw line and node circles
-    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green, node_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green,
+                           node_color.blue, 0xFF);
     for (int i = 0; i <= ad.number_of_nodes(); i++) {
         if (i < ad.number_of_nodes()) {
             int node_x = (node_radius * 2) + (i * (4 * node_radius));
             int node_y = center_y;
             node_positions.push_back({node_x, node_y});
-            draw_circle(
-                node_x,
-                node_y,
-                node_radius);
+            draw_circle(node_x, node_y, node_radius);
         }
         if (i != 0 && i != ad.number_of_nodes()) {
-            int start_x = (int)(((4 * node_radius) * (i - 1)) + (3 * node_radius));
-            SDL_RenderDrawLine(
-                renderer,
-                start_x,
-                center_y,
-                (int)(start_x + (2 * node_radius)),
-                center_y);
+            int start_x =
+                (int)(((4 * node_radius) * (i - 1)) + (3 * node_radius));
+            SDL_RenderDrawLine(renderer, start_x, center_y,
+                               (int)(start_x + (2 * node_radius)), center_y);
         }
     }
     // Draw edges
     std::set<std::pair<int, int> > edges;
     int current_edge = 0;
-    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green, edge_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green,
+                           edge_color.blue, 0xFF);
     for (int i = 0; i < ad.graph.size(); i++) {
         for (int j = 0; j < ad.graph[i].size(); j++) {
             // Draw edge from node i to j
             int node1_id = i;
             int node2_id = (int)(ad.graph[i][j].id);
-            int node1_x = (int)(((4 * node_radius) * node1_id) + (2 * node_radius));
-            int node2_x = (int)(((4 * node_radius) * node2_id) + (2 * node_radius));
+            int node1_x =
+                (int)(((4 * node_radius) * node1_id) + (2 * node_radius));
+            int node2_x =
+                (int)(((4 * node_radius) * node2_id) + (2 * node_radius));
             if (!ad.directed()) {
                 int min_node = std::min(node1_id, node2_id);
                 int max_node = std::max(node1_id, node2_id);
@@ -211,7 +200,8 @@ std::vector<Position> render(ArcDiagram &ad) {
                     continue;
                 }
             }
-            bool above = (current_edge * 2 < ad.number_of_edges()) ? false : true;
+            bool above =
+                (current_edge * 2 < ad.number_of_edges()) ? false : true;
             int edge_radius = (int)(abs(node1_x - node2_x) / 2);
             int cx = (int)((node1_x + node2_x) / 2);
             int cy = center_y + (above ? node_radius : -1 * node_radius);
@@ -225,7 +215,8 @@ std::vector<Position> render(ArcDiagram &ad) {
                 int dx[8] = {x, x, -x, -x, y, y, -y, -y};
                 int dy[8] = {-y, y, -y, y, -x, x, -x, x};
                 for (int k = 0; k < 8; k++) {
-                    if ((above && (cy + dy[k] >= cy)) || (!above && (cy + dy[k] <= cy))) {
+                    if ((above && (cy + dy[k] >= cy)) ||
+                        (!above && (cy + dy[k] <= cy))) {
                         SDL_RenderDrawPoint(renderer, cx + dx[k], cy + dy[k]);
                     }
                 }
@@ -254,33 +245,32 @@ std::vector<Position> render(CircularLayout &cl) {
     // Initialize checkpoint positions and measurements
     int center_x = (int)(window_width / 2);
     int center_y = (int)(window_height / 2);
-    int circle_radius = (int)((std::min(window_width, window_height) / 2) - circle_padding - node_radius);
+    int circle_radius = (int)((std::min(window_width, window_height) / 2) -
+                              circle_padding - node_radius);
     float circle_circumference = 2 * M_PI * (float)circle_radius;
     // Draw nodes
-    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green, node_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green,
+                           node_color.blue, 0xFF);
     for (int i = 0; i < cl.number_of_nodes(); i++) {
         float angle = ((float)i / cl.number_of_nodes()) * (2 * M_PI);
         int node_x = center_x + (circle_radius * cos(angle));
         int node_y = center_y + (circle_radius * sin(angle));
         draw_circle(node_x, node_y, node_radius);
-        Position position = {
-            node_x,
-            node_y};
+        Position position = {node_x, node_y};
         node_positions.push_back(position);
     }
     // Draw edges
-    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green, edge_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green,
+                           edge_color.blue, 0xFF);
     for (int i = 0; i < cl.graph.size(); i++) {
         for (int j = 0; j < cl.graph[i].size(); j++) {
             // Draw edge (line) from node i to j
             int node1_id = i;
             int node2_id = (int)(cl.graph[i][j].id);
-            SDL_RenderDrawLine(
-                renderer,
-                node_positions[node1_id].x,
-                node_positions[node1_id].y,
-                node_positions[node2_id].x,
-                node_positions[node2_id].y);
+            SDL_RenderDrawLine(renderer, node_positions[node1_id].x,
+                               node_positions[node1_id].y,
+                               node_positions[node2_id].x,
+                               node_positions[node2_id].y);
         }
     }
     return node_positions;
@@ -310,9 +300,7 @@ std::vector<Position> render(SpiralLayout &sl) {
             float node_x = (cos(theta) * radius);
             float node_y = (sin(theta) * radius);
             if (i > 0) {
-                node_positions_float.push_back(std::make_pair(
-                    node_x,
-                    node_y));
+                node_positions_float.push_back(std::make_pair(node_x, node_y));
             }
         }
     } else {
@@ -320,12 +308,12 @@ std::vector<Position> render(SpiralLayout &sl) {
         float angle = 0.0;
         float dist = 0.0;
         float radius = sl.number_of_nodes();
-        while (dist * sqrt((cos(angle) * cos(angle)) + (sin(angle) * sin(angle))) < radius) {
+        while (dist *
+                   sqrt((cos(angle) * cos(angle)) + (sin(angle) * sin(angle))) <
+               radius) {
             float node_x = (cos(angle) * dist);
             float node_y = (sin(angle) * dist);
-            node_positions_float.push_back(std::make_pair(
-                node_x,
-                node_y));
+            node_positions_float.push_back(std::make_pair(node_x, node_y));
             dist += step;
             angle += resolution;
         }
@@ -347,31 +335,30 @@ std::vector<Position> render(SpiralLayout &sl) {
     }
     // Adjust node positions with calculated factor
     float factor = ((float)(min_dimension - padding) / max) / 2;
-    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green, node_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green,
+                           node_color.blue, 0xFF);
     for (int i = 0; i < node_positions_float.size(); i++) {
-        node_positions_float[i].first = (node_positions_float[i].first * factor) + center_x;
-        node_positions_float[i].second = (node_positions_float[i].second * factor) + center_y;
+        node_positions_float[i].first =
+            (node_positions_float[i].first * factor) + center_x;
+        node_positions_float[i].second =
+            (node_positions_float[i].second * factor) + center_y;
         int node_x = node_positions_float[i].first;
         int node_y = node_positions_float[i].second;
         node_positions.push_back({node_x, node_y});
-        draw_circle(
-            node_x,
-            node_y,
-            node_radius);
+        draw_circle(node_x, node_y, node_radius);
     }
     // Draw edges
-    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green, edge_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green,
+                           edge_color.blue, 0xFF);
     for (int i = 0; i < sl.graph.size(); i++) {
         for (int j = 0; j < sl.graph[i].size(); j++) {
             // Draw edge (line) from node i to j
             int node1_id = i;
             int node2_id = (int)(sl.graph[i][j].id);
-            SDL_RenderDrawLine(
-                renderer,
-                node_positions_float[node1_id].first,
-                node_positions_float[node1_id].second,
-                node_positions_float[node2_id].first,
-                node_positions_float[node2_id].second);
+            SDL_RenderDrawLine(renderer, node_positions_float[node1_id].first,
+                               node_positions_float[node1_id].second,
+                               node_positions_float[node2_id].first,
+                               node_positions_float[node2_id].second);
         }
     }
     return node_positions;
@@ -379,40 +366,41 @@ std::vector<Position> render(SpiralLayout &sl) {
 
 // Render Random Layout graph
 std::vector<Position> render(
-    RandomLayout &rl,
-    std::vector<std::pair<float, float> > &random_positions,
+    RandomLayout &rl, std::vector<std::pair<float, float> > &random_positions,
     bool first_render) {
     std::vector<Position> node_positions;
     const int node_radius = rl.node_radius();
     // Draw nodes
-    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green, node_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green,
+                           node_color.blue, 0xFF);
     for (int i = 0; i < rl.number_of_nodes(); i++) {
         if (first_render) {
             random_positions.push_back(std::make_pair(
                 (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
                 (static_cast<float>(rand()) / static_cast<float>(RAND_MAX))));
         }
-        int node_x = (int)((random_positions[i].first * (window_width - node_radius)) + node_radius);
-        int node_y = (int)((random_positions[i].second * (window_height - node_radius)) + node_radius);
+        int node_x =
+            (int)((random_positions[i].first * (window_width - node_radius)) +
+                  node_radius);
+        int node_y =
+            (int)((random_positions[i].second * (window_height - node_radius)) +
+                  node_radius);
         draw_circle(node_x, node_y, node_radius);
-        Position position = {
-            node_x,
-            node_y};
+        Position position = {node_x, node_y};
         node_positions.push_back(position);
     }
     // Draw edges
-    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green, edge_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green,
+                           edge_color.blue, 0xFF);
     for (int i = 0; i < rl.graph.size(); i++) {
         for (int j = 0; j < rl.graph[i].size(); j++) {
             // Draw edge (line) from node i to j
             int node1_id = i;
             int node2_id = (int)(rl.graph[i][j].id);
-            SDL_RenderDrawLine(
-                renderer,
-                node_positions[node1_id].x,
-                node_positions[node1_id].y,
-                node_positions[node2_id].x,
-                node_positions[node2_id].y);
+            SDL_RenderDrawLine(renderer, node_positions[node1_id].x,
+                               node_positions[node1_id].y,
+                               node_positions[node2_id].x,
+                               node_positions[node2_id].y);
         }
     }
     first_render = false;
@@ -444,9 +432,12 @@ std::vector<Position> render(
             for (int i = 0; i < fd.number_of_nodes(); i++) {
                 // Calculate repulsion
                 for (int j = (i + 1); j < fd.number_of_nodes(); j++) {
-                    float delta_x = random_positions[i].first - random_positions[j].first;
-                    float delta_y = random_positions[i].second - random_positions[j].second;
-                    float distance = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+                    float delta_x =
+                        random_positions[i].first - random_positions[j].first;
+                    float delta_y =
+                        random_positions[i].second - random_positions[j].second;
+                    float distance =
+                        sqrt((delta_x * delta_x) + (delta_y * delta_y));
                     float repulsion = (k * k) / distance;
                     // Update movement vector for node i
                     movement[i].x += (delta_x / distance) * repulsion;
@@ -461,24 +452,33 @@ std::vector<Position> render(
                     if (neighbor_id > i) {
                         continue;
                     }
-                    float delta_x = random_positions[i].first - random_positions[neighbor_id].first;
-                    float delta_y = random_positions[i].second - random_positions[neighbor_id].second;
-                    float distance = sqrt((delta_x * delta_x) + (delta_y * delta_y));
+                    float delta_x = random_positions[i].first -
+                                    random_positions[neighbor_id].first;
+                    float delta_y = random_positions[i].second -
+                                    random_positions[neighbor_id].second;
+                    float distance =
+                        sqrt((delta_x * delta_x) + (delta_y * delta_y));
                     float attraction = (distance * distance) / k;
                     // Update movement vector for node i
                     movement[i].x -= (delta_x / distance) * attraction;
                     movement[i].y -= (delta_y / distance) * attraction;
                     // Update movemnt vector for node j
-                    movement[neighbor_id].x += (delta_x / distance) * attraction;
-                    movement[neighbor_id].y += (delta_y / distance) * attraction;
+                    movement[neighbor_id].x +=
+                        (delta_x / distance) * attraction;
+                    movement[neighbor_id].y +=
+                        (delta_y / distance) * attraction;
                 }
             }
             for (int i = 0; i < fd.number_of_nodes(); i++) {
                 // Limit maximum movement to temperature
-                float movement_distance = sqrt((movement[i].x * movement[i].x) + (movement[i].y * movement[i].y));
-                float capped_movement = std::min(movement_distance, temperature);
-                float capped_movement_x = (movement[i].x / movement_distance) * capped_movement;
-                float capped_movement_y = (movement[i].y / movement_distance) * capped_movement;
+                float movement_distance = sqrt((movement[i].x * movement[i].x) +
+                                               (movement[i].y * movement[i].y));
+                float capped_movement =
+                    std::min(movement_distance, temperature);
+                float capped_movement_x =
+                    (movement[i].x / movement_distance) * capped_movement;
+                float capped_movement_y =
+                    (movement[i].y / movement_distance) * capped_movement;
                 random_positions[i].first += capped_movement_x;
                 random_positions[i].second += capped_movement_y;
             }
@@ -514,30 +514,36 @@ std::vector<Position> render(
         float offset_x = (center_x / 2.0) * scale;
         float offset_y = (center_y / 2.0) * scale;
         for (int i = 0; i < random_positions.size(); i++) {
-            random_positions[i].first = ((random_positions[i].first * scale) - offset_x) + 0.5;
-            random_positions[i].second = ((random_positions[i].second * scale) - offset_y) + 0.5;
+            random_positions[i].first =
+                ((random_positions[i].first * scale) - offset_x) + 0.5;
+            random_positions[i].second =
+                ((random_positions[i].second * scale) - offset_y) + 0.5;
         }
     }
-    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green, node_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green,
+                           node_color.blue, 0xFF);
     for (int i = 0; i < fd.number_of_nodes(); i++) {
-        int node_x = (int)((random_positions[i].first * (window_width - node_radius)) + node_radius);
-        int node_y = (int)((random_positions[i].second * (window_height - node_radius)) + node_radius);
+        int node_x =
+            (int)((random_positions[i].first * (window_width - node_radius)) +
+                  node_radius);
+        int node_y =
+            (int)((random_positions[i].second * (window_height - node_radius)) +
+                  node_radius);
         draw_circle(node_x, node_y, node_radius);
         node_positions.push_back({node_x, node_y});
     }
     // Draw edges
-    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green, edge_color.blue, 0xFF);
+    SDL_SetRenderDrawColor(renderer, edge_color.red, edge_color.green,
+                           edge_color.blue, 0xFF);
     for (int i = 0; i < fd.graph.size(); i++) {
         for (int j = 0; j < fd.graph[i].size(); j++) {
             // Draw edge (line) from node i to j
             int node1_id = i;
             int node2_id = (int)(fd.graph[i][j].id);
-            SDL_RenderDrawLine(
-                renderer,
-                node_positions[node1_id].x,
-                node_positions[node1_id].y,
-                node_positions[node2_id].x,
-                node_positions[node2_id].y);
+            SDL_RenderDrawLine(renderer, node_positions[node1_id].x,
+                               node_positions[node1_id].y,
+                               node_positions[node2_id].x,
+                               node_positions[node2_id].y);
         }
     }
     return node_positions;
@@ -568,7 +574,9 @@ void draw_random(Graph &g, bool force_close = true) {
             }
         }
         if (redraw) {
-            SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
+            SDL_SetRenderDrawColor(renderer, background_color.red,
+                                   background_color.green,
+                                   background_color.blue, 0xFF);
             SDL_RenderClear(renderer);
             // Call render random
             render(g, random_positions, first_render);
@@ -584,7 +592,9 @@ void draw_random(Graph &g, bool force_close = true) {
 
 // Animate random graph layouts wic need to cache random positions
 template <typename Graph>
-void animate_random(Graph &g, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+void animate_random(Graph &g, int width = window_width,
+                    int height = window_height, float fps = default_fps,
+                    bool force_close = true) {
     srand(time(NULL));
     // Init without resizable property
     init(false, width, height);
@@ -624,7 +634,9 @@ void animate_random(Graph &g, int width = window_width, int height = window_heig
         if (current_node < g.number_of_nodes()) {
             SDL_Delay(delay);
             animated_graph.graph[current_node] = g.graph[current_node];
-            SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
+            SDL_SetRenderDrawColor(renderer, background_color.red,
+                                   background_color.green,
+                                   background_color.blue, 0xFF);
             SDL_RenderClear(renderer);
             if (first_render) {
                 // If it is the first render, fill random positions vector
@@ -662,7 +674,9 @@ void draw(Graph &g, bool force_close = true) {
             }
         }
         if (redraw) {
-            SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
+            SDL_SetRenderDrawColor(renderer, background_color.red,
+                                   background_color.green,
+                                   background_color.blue, 0xFF);
             SDL_RenderClear(renderer);
             render(g);
             SDL_RenderPresent(renderer);
@@ -675,9 +689,7 @@ void draw(Graph &g, bool force_close = true) {
 }
 
 // Draw random layout graph
-inline void draw(RandomLayout &rl, bool force_close = true) {
-    draw_random(rl);
-}
+inline void draw(RandomLayout &rl, bool force_close = true) { draw_random(rl); }
 
 // Draw force directed layout
 inline void draw(ForceDirectedLayout &fd, bool force_close = true) {
@@ -686,7 +698,8 @@ inline void draw(ForceDirectedLayout &fd, bool force_close = true) {
 
 // Animate a given graph
 template <typename Graph>
-void animate(Graph &g, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+void animate(Graph &g, int width = window_width, int height = window_height,
+             float fps = default_fps, bool force_close = true) {
     // Init without resizable property
     init(false, width, height);
     set_window_title(g);
@@ -723,7 +736,9 @@ void animate(Graph &g, int width = window_width, int height = window_height, flo
         if (current_node < g.number_of_nodes()) {
             SDL_Delay(delay);
             animated_graph.graph[current_node] = g.graph[current_node];
-            SDL_SetRenderDrawColor(renderer, background_color.red, background_color.green, background_color.blue, 0xFF);
+            SDL_SetRenderDrawColor(renderer, background_color.red,
+                                   background_color.green,
+                                   background_color.blue, 0xFF);
             SDL_RenderClear(renderer);
             render(animated_graph);
             SDL_RenderPresent(renderer);
@@ -736,12 +751,16 @@ void animate(Graph &g, int width = window_width, int height = window_height, flo
 }
 
 // Animate random layout graph
-inline void animate(RandomLayout &rl, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+inline void animate(RandomLayout &rl, int width = window_width,
+                    int height = window_height, float fps = default_fps,
+                    bool force_close = true) {
     animate_random(rl, width, height, fps, force_close);
 }
 
 // Animate force directed layout
-inline void animate(ForceDirectedLayout &fd, int width = window_width, int height = window_height, float fps = default_fps, bool force_close = true) {
+inline void animate(ForceDirectedLayout &fd, int width = window_width,
+                    int height = window_height, float fps = default_fps,
+                    bool force_close = true) {
     animate_random(fd, width, height, fps, force_close);
 }
 }  // namespace graphw

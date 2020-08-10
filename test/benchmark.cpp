@@ -18,14 +18,13 @@ struct BenchmarkError : public std::runtime_error {
 
 class Timer {
    public:
-    Timer() {
-        start_timepoint = std::chrono::high_resolution_clock::now();
-    }
-    ~Timer() {
-        stop();
-    }
+    Timer() { start_timepoint = std::chrono::high_resolution_clock::now(); }
+    ~Timer() { stop(); }
     void stop() {
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_timepoint).count();
+        auto duration =
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - start_timepoint)
+                .count();
         times.push_back(duration);
     }
 
@@ -34,9 +33,7 @@ class Timer {
 };
 
 // Call this function before every test case
-void test_case(std::string name) {
-    test_names.push_back(name);
-}
+void test_case(std::string name) { test_names.push_back(name); }
 
 // Format and print the results
 void print_results() {
@@ -52,12 +49,16 @@ void print_results() {
                 max_time = times[i];
                 max_time_index = i;
             }
-            time_strings.push_back(std::to_string(times[i]) + "us (" + std::to_string(times[i] * 0.001) + "ms)");
+            time_strings.push_back(std::to_string(times[i]) + "us (" +
+                                   std::to_string(times[i] * 0.001) + "ms)");
         }
         int max_time_string_size = time_strings[max_time_index].size();
         // Format and print
         for (int i = 0; i < time_strings.size(); i++) {
-            time_strings[i] += std::string(max_time_string_size - time_strings[i].size(), ' ') + ": ";
+            time_strings[i] +=
+                std::string(max_time_string_size - time_strings[i].size(),
+                            ' ') +
+                ": ";
             std::cout << time_strings[i] << test_names[i] << '\n';
         }
     }

@@ -26,8 +26,7 @@ class Graph {
    public:
     std::vector<std::vector<Node> > graph;
 
-    Graph(bool new_directed_ = false)
-        : directed_(new_directed_), edges(0) {}
+    Graph(bool new_directed_ = false) : directed_(new_directed_), edges(0) {}
 
     // Add node with given label, node will not be added if
     // the label already exists. Returns the node created.
@@ -48,9 +47,7 @@ class Graph {
             return node;
         }
         // Set node with empty values;
-        node = {
-            0,
-            ""};
+        node = {0, ""};
         return node;
     }
 
@@ -73,12 +70,8 @@ class Graph {
         // Check if edge already exists if both labels existed before
         if (nodes_created > 0 || (!are_neighbors(label1, label2))) {
             // Define new nodes based one label1 and label2
-            Node node1 = {
-                identities[label1],
-                label1};
-            Node node2 = {
-                identities[label2],
-                label2};
+            Node node1 = {identities[label1], label1};
+            Node node2 = {identities[label2], label2};
             graph[node1.id].push_back(node2);
             if (!directed_) {
                 graph[node2.id].push_back(node1);
@@ -204,7 +197,8 @@ class Graph {
             }
         } else {
             // Formula for the sum of a geometric sequence
-            node_amount = (int)((1 - pow(children, height + 1)) / (1 - children));
+            node_amount =
+                (int)((1 - pow(children, height + 1)) / (1 - children));
             add_full_mary_tree(children, node_amount);
         }
     }
@@ -229,14 +223,16 @@ class Graph {
             }
             add_path(path_nodes);
             // Connect first clique with path
-            add_edge(std::to_string(initial_size - 1), std::to_string(initial_size));
+            add_edge(std::to_string(initial_size - 1),
+                     std::to_string(initial_size));
         }
         // Update initial size
         initial_size = graph.size();
         // Create second clique
         add_complete(m1);
         // Connect path with second clique
-        add_edge(std::to_string(initial_size - 1), std::to_string(initial_size));
+        add_edge(std::to_string(initial_size - 1),
+                 std::to_string(initial_size));
     }
 
     // Add a binomial tree
@@ -257,7 +253,8 @@ class Graph {
             for (int i = initial_size; i < (initial_size + order); i++) {
                 // Capture current edges_vector size
                 int initial_edges_size = edges_vector.size();
-                for (int j = initial_size; j < (initial_size + initial_edges_size); j++) {
+                for (int j = initial_size;
+                     j < (initial_size + initial_edges_size); j++) {
                     int u = edges_vector[j - initial_size].id1 + n;
                     int v = edges_vector[j - initial_size].id2 + n;
                     add_edge(std::to_string(u), std::to_string(v));
@@ -273,7 +270,8 @@ class Graph {
     // Add a complete graph
     void add_complete(int n) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         } else if (n > 0) {
             // No need to do anything if n = 0, therefore n > 0
             if (n == 1) {
@@ -327,7 +325,8 @@ class Graph {
                     // First node in subset
                     first_neighbor = i + sizes_vector[current_subset];
                 }
-                for (int j = first_neighbor; j < (initial_size + node_amount); j++) {
+                for (int j = first_neighbor; j < (initial_size + node_amount);
+                     j++) {
                     add_edge(std::to_string(i), std::to_string(j));
                 }
             }
@@ -338,13 +337,16 @@ class Graph {
     // Add a circular ladder graph
     void add_circular_ladder(int n) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         } else if (n > 0) {
             int initial_size = graph.size();
             add_ladder(n);
             if (n > 2) {
-                add_edge(std::to_string(initial_size), std::to_string(initial_size + (n - 1)));
-                add_edge(std::to_string(initial_size + n), std::to_string(initial_size + ((2 * n) - 1)));
+                add_edge(std::to_string(initial_size),
+                         std::to_string(initial_size + (n - 1)));
+                add_edge(std::to_string(initial_size + n),
+                         std::to_string(initial_size + ((2 * n) - 1)));
             }
         }
     }
@@ -352,7 +354,8 @@ class Graph {
     // Add a circulant graph
     void add_circulant(int n, const std::list<int>& offsets) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         } else if (n > 0) {
             int initial_size = graph.size();
             // Add nodes
@@ -360,7 +363,8 @@ class Graph {
             // Add edges
             for (int i = initial_size; i < (initial_size + n); i++) {
                 for (auto const& offset : offsets) {
-                    add_edge(std::to_string(i), std::to_string((i + abs(offset)) % n));
+                    add_edge(std::to_string(i),
+                             std::to_string((i + abs(offset)) % n));
                 }
             }
         }
@@ -369,7 +373,8 @@ class Graph {
     // Add an empty graph
     void add_empty(int n) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         }
         int initial_size = graph.size();
         // Add nodes
@@ -381,17 +386,20 @@ class Graph {
     // Add a full m-ary tree
     void add_full_mary_tree(int m, int n) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         }
         if (m == 0) {
             add_empty(n);
         } else {
             int initial_size = graph.size();
             int current_node = initial_size;
-            for (int i = initial_size; (i < (initial_size + n)) && (current_node < n); i++) {
+            for (int i = initial_size;
+                 (i < (initial_size + n)) && (current_node < n); i++) {
                 for (int j = 1; (j <= m) && ((current_node + j) < n); j++) {
                     // Add edge
-                    add_edge(std::to_string(i), std::to_string(current_node + j));
+                    add_edge(std::to_string(i),
+                             std::to_string(current_node + j));
                 }
                 current_node += m;
             }
@@ -401,7 +409,8 @@ class Graph {
     // Add a ladder graph
     void add_ladder(int n) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         } else if (n > 0) {
             int initial_size = graph.size();
             // Add nodes
@@ -414,7 +423,8 @@ class Graph {
                 // Add edge rung
                 add_edge(std::to_string(i), std::to_string(i + n));
             }
-            for (int i = (initial_size + n); i < (initial_size + (2 * n)); i++) {
+            for (int i = (initial_size + n); i < (initial_size + (2 * n));
+                 i++) {
                 if (i > (initial_size + n)) {
                     add_edge(std::to_string(i - 1), std::to_string(i));
                 }
@@ -435,7 +445,8 @@ class Graph {
         add_complete(m);
         if (n > 0) {
             // Connect clique with first path node
-            add_edge(std::to_string((initial_size + m) - 1), std::to_string(initial_size + m));
+            add_edge(std::to_string((initial_size + m) - 1),
+                     std::to_string(initial_size + m));
             std::list<std::string> path_nodes;
             for (int i = m; i < (m + n); i++) {
                 path_nodes.push_back(std::to_string(i));
@@ -448,7 +459,8 @@ class Graph {
     // Add a star graph
     void add_star(int k) {
         if (k < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(k));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(k));
         } else if (k == 0) {
             // If k is 0, simply add a node
             add_node();
@@ -487,7 +499,8 @@ class Graph {
     // Add a wheel graph
     void add_wheel(int n) {
         if (n < 0) {
-            throw GraphwError("Negative number of nodes not valid: " + std::to_string(n));
+            throw GraphwError("Negative number of nodes not valid: " +
+                              std::to_string(n));
         }
         if (n != 0) {
             int initial_size = graph.size();
@@ -501,8 +514,10 @@ class Graph {
                         add_edge(std::to_string(i - 1), std::to_string(i));
                     }
                 }
-                // Add additional edge between last node and the node after the center node
-                add_edge(std::to_string(initial_size + n - 1), std::to_string(initial_size + 1));
+                // Add additional edge between last node and the node after the
+                // center node
+                add_edge(std::to_string(initial_size + n - 1),
+                         std::to_string(initial_size + 1));
             }
         }
     }
@@ -566,7 +581,8 @@ class Graph {
         return neighbors;
     }
 
-    // Return a list of labels representing the non-neighbors of a given node label
+    // Return a list of labels representing the non-neighbors of a given node
+    // label
     std::list<std::string> get_non_neighbors(std::string label) {
         if (labels.find(label) == labels.end()) {
             // Label does not exist
@@ -590,7 +606,8 @@ class Graph {
                 }
             } else {
                 // Current label being compared is equal to given label
-                // Mark it as a neighbor to avoid pushing it into non neighbors list
+                // Mark it as a neighbor to avoid pushing it into non neighbors
+                // list
                 is_neighbor = true;
             }
             if (!is_neighbor) {
@@ -600,9 +617,12 @@ class Graph {
         return non_neighbors;
     }
 
-    // Return a list of labels representing the common neighbor(s) given two node labels
-    std::list<std::string> get_common_neighbors(std::string label1, std::string label2) {
-        if (labels.find(label1) == labels.end() || labels.find(label2) == labels.end()) {
+    // Return a list of labels representing the common neighbor(s) given two
+    // node labels
+    std::list<std::string> get_common_neighbors(std::string label1,
+                                                std::string label2) {
+        if (labels.find(label1) == labels.end() ||
+            labels.find(label2) == labels.end()) {
             // At least one of the labels do not exist
             throw GraphwError("Given label does not exist");
         }
@@ -634,24 +654,16 @@ class Graph {
     }
 
     // Return whether graph is directed
-    inline bool directed() {
-        return directed_;
-    }
+    inline bool directed() { return directed_; }
 
     // Set the graph to be directed or not
-    inline void set_directed(bool new_directed_) {
-        directed_ = new_directed_;
-    }
+    inline void set_directed(bool new_directed_) { directed_ = new_directed_; }
 
     // Return number of nodes
-    inline int number_of_nodes() {
-        return (int)(graph.size());
-    }
+    inline int number_of_nodes() { return (int)(graph.size()); }
 
     // Return number of edges
-    inline int number_of_edges() {
-        return edges;
-    }
+    inline int number_of_edges() { return edges; }
 
    protected:
     std::set<std::string> labels;
@@ -662,11 +674,7 @@ class Graph {
 
     // Return a node struct instance given
     // a string label
-    Node get_node(std::string label) {
-        return {
-            (int)(graph.size()),
-            label};
-    }
+    Node get_node(std::string label) { return {(int)(graph.size()), label}; }
 
     // Checks if given node definition matches
     // graph existing node definition
@@ -707,9 +715,7 @@ class CircularLayout : public Graph {
         : directed_(new_directed_), node_radius_(new_node_radius_) {}
 
     // Return the node radius
-    inline int node_radius() {
-        return node_radius_;
-    }
+    inline int node_radius() { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -727,9 +733,7 @@ class RandomLayout : public Graph {
         : directed_(new_directed_), node_radius_(new_node_radius_) {}
 
     // Return the node radius
-    inline int node_radius() {
-        return node_radius_;
-    }
+    inline int node_radius() { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -743,13 +747,15 @@ class RandomLayout : public Graph {
 
 class SpiralLayout : public Graph {
    public:
-    SpiralLayout(bool new_directed_ = false, int new_node_radius_ = 10, float new_resolution_ = 0.35, bool new_equidistant_ = false)
-        : directed_(new_directed_), node_radius_(new_node_radius_), resolution_(new_resolution_), equidistant_(new_equidistant_) {}
+    SpiralLayout(bool new_directed_ = false, int new_node_radius_ = 10,
+                 float new_resolution_ = 0.35, bool new_equidistant_ = false)
+        : directed_(new_directed_),
+          node_radius_(new_node_radius_),
+          resolution_(new_resolution_),
+          equidistant_(new_equidistant_) {}
 
     // Return the node radius
-    inline int node_radius() {
-        return node_radius_;
-    }
+    inline int node_radius() { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -757,9 +763,7 @@ class SpiralLayout : public Graph {
     }
 
     // Return the current resolution
-    inline float resolution() {
-        return resolution_;
-    }
+    inline float resolution() { return resolution_; }
 
     // Set the resolution from given float
     inline void set_resolution(float new_resolution_) {
@@ -767,9 +771,7 @@ class SpiralLayout : public Graph {
     }
 
     // Return whether spiral layout is set to be equidistant
-    inline bool equidistant() {
-        return equidistant_;
-    }
+    inline bool equidistant() { return equidistant_; }
 
     // Set the spiral to be equidistant or not
     inline void set_equidistant(bool new_equidistant_) {
@@ -785,13 +787,14 @@ class SpiralLayout : public Graph {
 
 class ForceDirectedLayout : public Graph {
    public:
-    ForceDirectedLayout(bool new_directed_ = false, int new_node_radius_ = 20, int new_iterations_ = 300)
-        : directed_(new_directed_), node_radius_(new_node_radius_), iterations_(new_iterations_) {}
+    ForceDirectedLayout(bool new_directed_ = false, int new_node_radius_ = 20,
+                        int new_iterations_ = 300)
+        : directed_(new_directed_),
+          node_radius_(new_node_radius_),
+          iterations_(new_iterations_) {}
 
     // Return the node radius
-    inline int node_radius() {
-        return node_radius_;
-    }
+    inline int node_radius() { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -799,9 +802,7 @@ class ForceDirectedLayout : public Graph {
     }
 
     // Return the number of iterations
-    inline int iterations() {
-        return iterations_;
-    }
+    inline int iterations() { return iterations_; }
 
     // Set the iterations from given int
     inline void set_iterations(int new_iterations_) {
