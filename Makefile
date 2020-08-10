@@ -42,6 +42,7 @@ benchmark-all: benchmark-compile benchmark
 	
 
 build-examples:
+	g++ -std=c++17 ./examples/animate.cpp $(sdl-flags)               -o ./examples/animate
 	g++ -std=c++17 ./examples/arc_diagram.cpp $(sdl-flags)           -o ./examples/arc_diagram
 	g++ -std=c++17 ./examples/circular_layout.cpp $(sdl-flags)       -o ./examples/circular_layout
 	g++ -std=c++17 ./examples/force_directed_layout.cpp $(sdl-flags) -o ./examples/force_directed_layout
