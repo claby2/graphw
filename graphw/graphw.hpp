@@ -679,8 +679,11 @@ class Graph {
     // Checks if given node definition matches
     // graph existing node definition
     bool does_node_exist(Node node) {
-        int expected_id = identities[node.label];
-        return node.id == expected_id;
+        auto it = identities.find(node.label);
+        if (it == identities.end()) {
+            return false;
+        }
+        return node.id == it->second;
     }
 
     // Return if two labels are node neighbors

@@ -981,24 +981,6 @@ TEST_CASE("testing graph rendering") {
             CHECK(output[i].y == expected_output[i].y);
         }
     }
-    SECTION("random layout") {
-        // Set random seed to fixed 123
-        srand(123);
-        graphw::RandomLayout random_layout;
-        random_layout.add_empty(10);
-        std::vector<graphw::Position> expected_output = {
-            {380, 26}, {267, 343}, {81, 474},  {638, 451}, {551, 157},
-            {34, 306}, {93, 82},   {371, 447}, {617, 451}, {486, 463}};
-        std::vector<std::pair<float, float> > random_positions;
-        // Simulate first render random
-        std::vector<graphw::Position> output =
-            graphw::render(random_layout, random_positions, true);
-        CHECK(output.size() == expected_output.size());
-        for (int i = 0; i < expected_output.size(); i++) {
-            CHECK(output[i].x == expected_output[i].x);
-            CHECK(output[i].y == expected_output[i].y);
-        }
-    }
     SECTION("spiral layout") {
         SECTION("not equidistant") {
             graphw::SpiralLayout spiral_layout;
@@ -1031,24 +1013,6 @@ TEST_CASE("testing graph rendering") {
                 CHECK(output[i].x == expected_output[i].x);
                 CHECK(output[i].y == expected_output[i].y);
             }
-        }
-    }
-    SECTION("force directed layout") {
-        // Set random seed to fixed 123
-        srand(123);
-        graphw::ForceDirectedLayout force_directed_layout;
-        force_directed_layout.add_complete(10);
-        std::vector<graphw::Position> expected_output = {
-            {598, 311}, {222, 284}, {330, 457}, {213, 450}, {83, 389},
-            {386, 118}, {159, 120}, {358, 111}, {168, 191}, {61, 42}};
-        std::vector<std::pair<float, float> > random_positions;
-        // Simulate first render random
-        std::vector<graphw::Position> output =
-            graphw::render(force_directed_layout, random_positions, true);
-        CHECK(output.size() == expected_output.size());
-        for (int i = 0; i < expected_output.size(); i++) {
-            CHECK(output[i].x == expected_output[i].x);
-            CHECK(output[i].y == expected_output[i].y);
         }
     }
 }

@@ -23,10 +23,10 @@ test: ./test/$(test-executable)
 test-compile:
 ifeq (,$(wildcard ./test/test_main.o))
 	$(info Compiling ./test/test_main.cpp, this only needs to be done once.)
-	g++ ./test/test_main.cpp -c -o ./test/test_main.o
-	g++ -std=c++17 ./test/test_main.o ./test/test_graphw.cpp $(sdl-flags) -o ./test/test
+	g++ ./test/test_main.cpp -c -g -o ./test/test_main.o
+	g++ -std=c++17 ./test/test_main.o ./test/test_graphw.cpp $(sdl-flags) -g -o ./test/test
 else
-	g++ -std=c++17 ./test/test_main.o ./test/test_graphw.cpp $(sdl-flags) -o ./test/test
+	g++ -std=c++17 ./test/test_main.o ./test/test_graphw.cpp $(sdl-flags) -g -o ./test/test
 endif
 
 benchmark: ./test/$(benchmark-executable)
