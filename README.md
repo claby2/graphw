@@ -10,10 +10,17 @@ Install [SDL2](http://libsdl.org/download-2.0.php) to draw graphs.
 
 ### Installation
 
-1. Download the headers in [`graphw/`](https://github.com/claby2/graphw/tree/master/graphw).
-2. Either put the header files in a central location (with a specified path) or directly in your project tree.
+1.  Download the headers in [`graphw/`](https://github.com/claby2/graphw/tree/master/graphw).
+2.  Either put the header files in a central location (with a specified path) or directly in your project tree.
 
 Documentation can be found in [`docs/`](./docs/readme.md).
+
+### Building
+
+```console
+$ cmake .
+$ make
+```
 
 ## Examples
 
@@ -56,23 +63,11 @@ int main() {
 
 More examples can be found in [`examples/`](https://github.com/claby2/graphw/tree/master/examples).
 
-To build the examples:
-
-```console
-$ make build-examples
-```
-
 ## Benchmarking
 
 Benchmarking does not require any external dependencies.
 
 Compile with:
-
-```console
-$ make benchmark-compile
-```
-
-Benchmark with:
 
 ```console
 $ make benchmark
@@ -83,12 +78,6 @@ $ make benchmark
 Testing requires [Catch2](https://github.com/catchorg/Catch2/).
 
 Compile with:
-
-```console
-$ make test-compile
-```
-
-Test with:
 
 ```console
 $ make test
