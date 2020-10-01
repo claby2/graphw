@@ -18,7 +18,7 @@ struct BenchmarkError : public std::runtime_error {
 
 class Timer {
    public:
-    Timer() { start_timepoint = std::chrono::high_resolution_clock::now(); }
+    Timer() : start_timepoint(std::chrono::high_resolution_clock::now()) {}
     ~Timer() { stop(); }
     void stop() {
         auto duration =

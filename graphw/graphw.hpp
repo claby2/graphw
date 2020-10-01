@@ -27,7 +27,7 @@ class Graph {
    public:
     std::vector<std::vector<Node> > graph;
 
-    Graph(bool new_directed_ = false) : directed_(new_directed_), edges(0) {}
+    Graph(bool new_directed_ = false) : edges(0), directed_(new_directed_) {}
 
     // Add node with given label, node will not be added if
     // the label already exists. Returns the node created.
@@ -212,7 +212,7 @@ class Graph {
         if (m2 < 0) {
             throw GraphwError("Invalid graph properties, m2 should be >=0");
         }
-        int initial_size = graph.size();
+        int initial_size;
         // Create first clique
         add_complete(m1);
         if (m2 > 0) {
@@ -524,7 +524,7 @@ class Graph {
     }
 
     // Return the adjacency list of the graph with labels representing each node
-    std::string get_adjacency_list(std::string delimiter = " ") {
+    std::string get_adjacency_list(const std::string& delimiter = " ") {
         std::string adjacency_list;
         // Fill adjacency list
         for (int i = 0; i < graph.size(); i++) {
@@ -541,7 +541,7 @@ class Graph {
     }
 
     // Return the density of the graph
-    float density() {
+    float density() const {
         float size = (float)(graph.size());
         if (directed_) {
             return (float)(edges / (size * (size - 1)));
@@ -598,13 +598,11 @@ class Graph {
             std::string current_label = labels_vector[i];
             if (current_label != label) {
                 // Current label being compared is not equal to given label
-                for (auto& neighbor : neighbors) {
-                    if (current_label == neighbor) {
-                        // Given label is a neighbor
-                        is_neighbor = true;
-                        break;
-                    }
-                }
+                is_neighbor =
+                    std::any_of(neighbors.begin(), neighbors.end(),
+                                [current_label](const std::string& neighbor) {
+                                    return current_label == neighbor;
+                                });
             } else {
                 // Current label being compared is equal to given label
                 // Mark it as a neighbor to avoid pushing it into non neighbors
@@ -627,21 +625,22 @@ class Graph {
             // At least one of the labels do not exist
             throw GraphwError("Given label does not exist");
         }
-        std::list<std::string> common_neighbors;
         // List of label1's neighbors
         std::list<std::string> neighbors1 = get_neighbors(label1);
         // List of label2's neighbors
         std::list<std::string> neighbors2 = get_neighbors(label2);
         // Compare lists
-        for (auto& i : neighbors1) {
-            for (auto& j : neighbors2) {
-                if (i == j) {
-                    // Labels are equivalent
-                    common_neighbors.push_back(i);
-                    break;
-                }
-            }
-        }
+        std::list<std::string> common_neighbors(
+            std::min(neighbors1.size(), neighbors2.size()));
+        auto it = std::copy_if(
+            neighbors1.begin(), neighbors1.end(), common_neighbors.begin(),
+            [neighbors2](const std::string& label_a) {
+                return std::any_of(neighbors2.begin(), neighbors2.end(),
+                                   [label_a](const std::string& label_b) {
+                                       return label_a == label_b;
+                                   });
+            });
+        common_neighbors.resize(std::distance(common_neighbors.begin(), it));
         return common_neighbors;
     }
 
@@ -655,18 +654,18 @@ class Graph {
     }
 
     // Return whether graph is directed
-    inline bool directed() { return directed_; }
+    inline bool directed() const { return directed_; }
 
     // Set the graph to be directed or not
     inline void set_directed(bool new_directed_) { directed_ = new_directed_; }
 
     // Return number of nodes
-    inline int number_of_nodes() { return (int)(graph.size()); }
+    inline int number_of_nodes() const { return (int)(graph.size()); }
 
     // Return number of edges
-    inline int number_of_edges() { return edges; }
+    inline int number_of_edges() const { return edges; }
 
-   protected:
+   private:
     std::set<std::string> labels;
     std::vector<std::string> labels_vector;
     std::unordered_map<std::string, int> identities;
@@ -675,7 +674,9 @@ class Graph {
 
     // Return a node struct instance given
     // a string label
-    Node get_node(std::string label) { return {(int)(graph.size()), label}; }
+    inline Node get_node(std::string label) const {
+        return {(int)(graph.size()), label};
+    }
 
     // Checks if given node definition matches
     // graph existing node definition
@@ -688,18 +689,20 @@ class Graph {
     }
 
     // Return if two labels are node neighbors
-    bool are_neighbors(std::string label1, std::string label2) {
+    bool are_neighbors(const std::string& label1, const std::string& label2) {
         std::list<std::string> neighbors = get_neighbors(label1);
-        for (auto& neighbor : neighbors) {
-            if (neighbor == label2) {
-                return true;
-            }
+        if (std::any_of(neighbors.begin(), neighbors.end(),
+                        [label2](const std::string& neighbor) {
+                            return neighbor == label2;
+                        })) {
+            return true;
         }
         neighbors = get_neighbors(label2);
-        for (auto& neighbor : neighbors) {
-            if (neighbor == label1) {
-                return true;
-            }
+        if (std::any_of(neighbors.begin(), neighbors.end(),
+                        [label1](const std::string& neighbor) {
+                            return neighbor == label1;
+                        })) {
+            return true;
         }
         return false;
     }
@@ -708,9 +711,6 @@ class Graph {
 class ArcDiagram : public Graph {
    public:
     using Graph::Graph;
-
-   private:
-    bool directed_;
 };
 
 class CircularLayout : public Graph {
@@ -719,7 +719,7 @@ class CircularLayout : public Graph {
         : directed_(new_directed_), node_radius_(new_node_radius_) {}
 
     // Return the node radius
-    inline int node_radius() { return node_radius_; }
+    inline int node_radius() const { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -727,8 +727,8 @@ class CircularLayout : public Graph {
     }
 
    private:
-    int node_radius_;
     bool directed_;
+    int node_radius_;
 };
 
 class RandomLayout : public Graph {
@@ -737,7 +737,7 @@ class RandomLayout : public Graph {
         : directed_(new_directed_), node_radius_(new_node_radius_) {}
 
     // Return the node radius
-    inline int node_radius() { return node_radius_; }
+    inline int node_radius() const { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -745,8 +745,8 @@ class RandomLayout : public Graph {
     }
 
    private:
-    int node_radius_;
     bool directed_;
+    int node_radius_;
 };
 
 class SpiralLayout : public Graph {
@@ -759,7 +759,7 @@ class SpiralLayout : public Graph {
           equidistant_(new_equidistant_) {}
 
     // Return the node radius
-    inline int node_radius() { return node_radius_; }
+    inline int node_radius() const { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -767,7 +767,7 @@ class SpiralLayout : public Graph {
     }
 
     // Return the current resolution
-    inline float resolution() { return resolution_; }
+    inline float resolution() const { return resolution_; }
 
     // Set the resolution from given float
     inline void set_resolution(float new_resolution_) {
@@ -775,7 +775,7 @@ class SpiralLayout : public Graph {
     }
 
     // Return whether spiral layout is set to be equidistant
-    inline bool equidistant() { return equidistant_; }
+    inline bool equidistant() const { return equidistant_; }
 
     // Set the spiral to be equidistant or not
     inline void set_equidistant(bool new_equidistant_) {
@@ -783,10 +783,10 @@ class SpiralLayout : public Graph {
     }
 
    private:
+    bool directed_;
     int node_radius_;
     float resolution_;
     bool equidistant_;
-    bool directed_;
 };
 
 class ForceDirectedLayout : public Graph {
@@ -798,7 +798,7 @@ class ForceDirectedLayout : public Graph {
           iterations_(new_iterations_) {}
 
     // Return the node radius
-    inline int node_radius() { return node_radius_; }
+    inline int node_radius() const { return node_radius_; }
 
     // Set the node radius from given int
     inline void set_node_radius(int new_node_radius_) {
@@ -806,7 +806,7 @@ class ForceDirectedLayout : public Graph {
     }
 
     // Return the number of iterations
-    inline int iterations() { return iterations_; }
+    inline int iterations() const { return iterations_; }
 
     // Set the iterations from given int
     inline void set_iterations(int new_iterations_) {
@@ -814,9 +814,9 @@ class ForceDirectedLayout : public Graph {
     }
 
    private:
+    bool directed_;
     int node_radius_;
     int iterations_;
-    bool directed_;
 };
 }  // namespace graphw
 #endif

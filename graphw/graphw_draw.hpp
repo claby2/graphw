@@ -103,7 +103,7 @@ inline void set_node_color(uint8_t red, uint8_t green, uint8_t blue) {
 }
 
 // Set the file path to save graph as png
-void set_save(std::string file_path) {
+void set_save(const std::string &file_path) {
     save_as_bmp = true;
     bmp_file_path = file_path;
 }
@@ -247,7 +247,6 @@ std::vector<Position> render(CircularLayout &cl) {
     int center_y = (int)(window_height / 2);
     int circle_radius = (int)((std::min(window_width, window_height) / 2) -
                               circle_padding - node_radius);
-    float circle_circumference = 2 * M_PI * (float)circle_radius;
     // Draw nodes
     SDL_SetRenderDrawColor(renderer, node_color.red, node_color.green,
                            node_color.blue, 0xFF);
@@ -403,7 +402,6 @@ std::vector<Position> render(
                                node_positions[node2_id].y);
         }
     }
-    first_render = false;
     return node_positions;
 }
 
