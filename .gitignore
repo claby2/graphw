@@ -5,6 +5,7 @@
 /test*
 !/tests
 /example_*
+/benchmark
 
 CMakeLists.txt.user
 CMakeCache.txt
