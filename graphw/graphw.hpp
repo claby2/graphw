@@ -45,10 +45,10 @@ class Graph {
             graph.push_back(neighbors);
             identities[label] = id;
             labels_vector.push_back(label);
-            return node;
+        } else {
+            // Node already exists
+            throw GraphwError("Could not add node with duplicate label");
         }
-        // Set node with empty values;
-        node = {0, ""};
         return node;
     }
 

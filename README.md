@@ -18,7 +18,9 @@ Documentation can be found in [`docs/`](./docs/readme.md).
 ### Building
 
 ```console
-$ cmake .
+$ mkdir build
+$ cd build
+$ cmake ..
 $ make
 ```
 

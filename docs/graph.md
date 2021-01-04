@@ -8,7 +8,7 @@ Add a node to the graph with a label.
 
 If no argument is given, the node will be automatically assigned a label that is equal to its id.
 
-If the label already exists, no node will be added.
+Will throw an exception if the given label already exists.
 
 ***Parameters***
 

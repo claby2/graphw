@@ -1,5 +1,5 @@
-#include "../graphw/graphw.hpp"
-#include "../graphw/graphw_draw.hpp"
+#include "graphw.hpp"
+#include "graphw_draw.hpp"
 
 int main() {
     // Construct circular layout graph
